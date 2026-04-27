@@ -169,8 +169,9 @@ export default function EditorPage() {
       setUploadProgress(null);
 
       const username = localStorage.getItem(`username_${user.uid}`) || user.email?.split("@")[0] || "Anonymous";
+      const profileImage = localStorage.getItem(`profileImage_${user.uid}`) || "";
       const postData = {
-        title: title.trim(), content, username, userEmail: user.email, userId: user.uid,
+        title: title.trim(), content, username, userEmail: user.email, userId: user.uid, profileImage,
         categories: categories ? categories.split(",").map((c) => c.trim()) : [],
         tags: tags ? tags.split(",").map((t) => t.trim()) : [],
         featuredImage: uploadedUrls[0] || "", galleryImages: uploadedUrls.slice(1),

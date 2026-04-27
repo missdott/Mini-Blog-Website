@@ -22,6 +22,7 @@ interface Post {
   userEmail: string; userId: string; createdAt: FirestoreTimestamp | null;
   likes?: string[]; comments?: number; isPrivate: boolean; isDraft: boolean;
   tags?: string[]; featuredImage?: string; featuredImages?: string[]; galleryImages?: string[];
+  profileImage?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -40,6 +41,23 @@ const notificationIcon = (type: string) => type === "like" ? "❤️" : type ===
 const getPostImages = (post: Post) => [...(post.featuredImage ? [post.featuredImage] : []), ...(post.galleryImages ?? [])];
 const getDisplayName = (post: Post) => post.username || post.userEmail?.split("@")[0];
 const getInitial = (post: Post) => (post.username || post.userEmail || "U")[0].toUpperCase();
+
+function Avatar({ post, size = 10 }: { post: Post; size?: number }) {
+  const px = `w-${size} h-${size}`;
+  if (post.profileImage) {
+    return (
+      <div className={`${px} rounded-full overflow-hidden shrink-0 relative`}>
+        <Image src={post.profileImage} alt={post.username || "User"} fill className="object-cover" unoptimized />
+      </div>
+    );
+  }
+  const textSize = size <= 6 ? "text-[10px]" : size <= 7 ? "text-xs" : "text-sm";
+  return (
+    <div className={`${px} rounded-full bg-[#2F4B7C] flex items-center justify-center text-white font-bold ${textSize} shrink-0`}>
+      {getInitial(post)}
+    </div>
+  );
+}
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -130,7 +148,6 @@ function Lightbox({ post, onClose, user, bookmarkedIds, onLike, onBookmark }: {
       <motion.div className="fixed inset-0 z-50 flex items-center justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}>
         <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={onClose} />
         <motion.div className="relative z-10 flex w-full h-full max-w-7xl mx-auto" initial={{ scale: 0.97, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.97, opacity: 0 }} transition={{ duration: 0.22 }}>
-          {/* Image panel — 70% */}
           <div className="relative w-[70%] h-full flex items-center justify-center bg-black">
             {image && <Image src={image} alt={post.title || "Post image"} fill className="object-contain" sizes="70vw" priority />}
             <button onClick={(e) => { e.stopPropagation(); setImgIndex((i) => (i - 1 + allImages.length) % allImages.length); }} className={`${navBtn} left-4`}>
@@ -150,11 +167,10 @@ function Lightbox({ post, onClose, user, bookmarkedIds, onLike, onBookmark }: {
               </div>
             )}
           </div>
-          {/* Sidebar — 30% */}
           <div className="w-[30%] h-full bg-white flex flex-col overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <button onClick={() => { onClose(); router.push(`/profile/${post.userId}`); }} className="flex items-center gap-2 hover:opacity-80 transition">
-                <div className="w-7 h-7 rounded-full bg-[#6FA8DC] flex items-center justify-center text-white text-xs font-bold">{getInitial(post)}</div>
+                <Avatar post={post} size={7} />
                 <span className="text-sm font-semibold text-[#2F4B7C]">{getDisplayName(post)}</span>
               </button>
               <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
@@ -248,7 +264,7 @@ function GalleryGrid({ posts, user, onOpenLightbox }: {
             <Link key={post.id} href={`/post/${post.id}`}>
               <div className="bg-white rounded-xl border border-gray-200 px-5 py-4 hover:shadow-md transition cursor-pointer">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white text-[10px] font-bold">{getInitial(post)}</div>
+                  <Avatar post={post} size={6} />
                   <span className="text-xs text-gray-500">{getDisplayName(post)}</span>
                   <span className="text-xs text-gray-400">• {timeAgo(post.createdAt)}</span>
                 </div>
@@ -324,7 +340,33 @@ export default function HomePage() {
     user.getIdToken(true).then(() => {
       const q = query(collection(db, "posts"), where("isPrivate", "==", false), where("isDraft", "==", false), orderBy("createdAt", "desc"));
       unsub = onSnapshot(q,
-        (snap) => { setPosts(snap.docs.map((d) => ({ id: d.id, ...d.data() })) as Post[]); setLoading(false); },
+        async (snap) => {
+          const rawPosts = snap.docs.map((d) => ({ id: d.id, ...d.data() })) as Post[];
+
+          // Fetch profileImage from users collection for posts that don't have it
+          const missingIds = [...new Set(
+            rawPosts.filter((p) => !p.profileImage).map((p) => p.userId)
+          )];
+
+          const profileMap: Record<string, string> = {};
+          await Promise.all(
+            missingIds.map(async (uid) => {
+              try {
+                const userSnap = await getDoc(doc(db, "users", uid));
+                if (userSnap.exists()) profileMap[uid] = userSnap.data().profileImage || "";
+              } catch { /* skip silently */ }
+            })
+          );
+
+          // Merge fetched profileImage into each post
+          const merged = rawPosts.map((p) => ({
+            ...p,
+            profileImage: p.profileImage || profileMap[p.userId] || "",
+          }));
+
+          setPosts(merged);
+          setLoading(false);
+        },
         (err) => { console.error("Posts listener error:", err); setLoading(false); }
       );
     }).catch((err) => { console.error("Token error:", err); setLoading(false); });
@@ -438,16 +480,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#F6F3EC]">
-      {/* Toast */}
       {toast && <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#2F4B7C] text-white text-sm font-medium px-5 py-3 rounded-full shadow-lg">{toast}</div>}
 
-      {/* Lightbox */}
       {lightboxPost && (
         <Lightbox key={lightboxPost.id} post={lightboxPost} onClose={() => setLightboxPost(null)}
           user={user} bookmarkedIds={bookmarkedIds} onLike={handleLike} onBookmark={handleBookmark} />
       )}
 
-      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div className="w-full pl-4 pr-6 h-16 flex items-center justify-between gap-4">
           <Link href="/home">
@@ -491,11 +530,9 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Main */}
       <div className="relative">
         <div className="lg:pr-80">
           <div className="max-w-3xl xl:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* View toggle */}
             <div className="flex justify-end mb-5">
               <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
                 {(["list", "gallery"] as const).map((mode) => (
@@ -519,10 +556,9 @@ export default function HomePage() {
                   </div>
                 ) : filteredPosts.map((post) => (
                   <div key={post.id} onClick={() => router.push(`/post/${post.id}`)} className="block bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-                    {/* Post header */}
                     <div className="flex items-center justify-between mb-4">
                       <button onClick={(e) => handleSeeProfile(e, post.userId)} className="flex items-center gap-3 hover:opacity-80 transition">
-                        <div className="w-10 h-10 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white font-bold text-sm">{getInitial(post)}</div>
+                        <Avatar post={post} size={10} />
                         <div className="text-left">
                           <p className="font-semibold text-gray-900 text-sm hover:text-[#6FA8DC] transition">{post.username || post.userEmail}</p>
                           <p className="text-xs text-gray-500">• {post.createdAt?.toDate().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
@@ -573,7 +609,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Notifications panel */}
         <div className="hidden lg:flex fixed right-4 top-20 w-80 max-h-[calc(100vh-6rem)] flex-col rounded-xl shadow-lg border border-gray-200 bg-white z-30">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 shrink-0">
             <div className="flex items-center gap-2">
@@ -604,7 +639,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Mobile profile button */}
       <div className="lg:hidden fixed bottom-4 left-4 z-50">
         <button className="w-12 h-12 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white font-bold shadow-lg">
           {user?.email?.[0].toUpperCase()}
