@@ -119,7 +119,7 @@ export default function BookmarksPage() {
                 <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearchNavigate()} placeholder="Search posts..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6FA8DC] text-sm bg-white" />
                 <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" {...ip}><path {...sw2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </div>
-              <button onClick={handleSearchNavigate} disabled={!searchQuery.trim()} className="px-4 py-2 text-sm font-bold text-white bg-[#6FA8DC] rounded-lg hover:bg-[#5A90C4] transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0">Search</button>
+              <button onClick={handleSearchNavigate} disabled={!searchQuery.trim()} className="px-4 py-2 text-sm font-bold text-white bg-[#6FA8DC] rounded-lg hover:bg-[#5A90C4] transition-all duration-200 ease-in-out disabled:opacity-40 disabled:cursor-not-allowed shrink-0 hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer">Search</button>
             </div>
           </div>
           <nav className="flex items-center gap-8 shrink-0">
@@ -127,7 +127,7 @@ export default function BookmarksPage() {
             <Link href="/dashboard" className={navLink}>My Blogs</Link>
             <Link href="/galleries" className={navLink}>Galleries</Link>
             <div className="relative" ref={menuRef}>
-              <button onClick={() => setShowMenu((s) => !s)} className="p-2 hover:bg-[#F6F3EC] rounded-full transition-colors group">
+              <button onClick={() => setShowMenu((s) => !s)} className="p-2 hover:bg-[#F6F3EC] rounded-full transition-all duration-200 ease-in-out group cursor-pointer hover:scale-110 active:scale-95">
                 <svg className="w-6 h-6 text-[#2F4B7C] group-hover:scale-110 transition-transform" {...ip}><path {...sw2} d="M4 6h16M4 12h16M4 18h16" /></svg>
               </button>
               {showMenu && (
@@ -142,7 +142,7 @@ export default function BookmarksPage() {
                     <Link href="/settings" onClick={() => setShowMenu(false)} className={menuItem}>Settings</Link>
                   </div>
                   <div className="border-t border-gray-50 pt-2 pb-1">
-                    <button onClick={handleLogout} className="w-full text-left px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors">Log Out</button>
+                    <button onClick={handleLogout} className="w-full text-left px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-all duration-200 ease-in-out hover:text-red-700 cursor-pointer">Log Out</button>
                   </div>
                 </div>
               )}
@@ -164,14 +164,14 @@ export default function BookmarksPage() {
             <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" {...ip}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
             <p className="text-gray-400 text-lg font-medium">No bookmarks yet</p>
             <p className="text-gray-400 text-sm mt-1">Save posts by clicking the bookmark icon on any post</p>
-            <Link href="/home" className="inline-block mt-6 px-6 py-2.5 bg-[#6FA8DC] text-white text-sm font-bold rounded-full hover:bg-[#5A90C4] transition">Browse posts</Link>
+            <Link href="/home" className="inline-block mt-6 px-6 py-2.5 bg-[#6FA8DC] text-white text-sm font-bold rounded-full hover:bg-[#5A90C4] transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer">Browse posts</Link>
           </div>
         ) : (
           <div className="space-y-4">
             {posts.map((post) => (
-              <div key={post.id} onClick={() => router.push(`/post/${post.id}`)} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
+              <div key={post.id} onClick={() => router.push(`/post/${post.id}`)} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer hover:border-[#6FA8DC]/30">
                 <div className="flex items-center justify-between mb-3">
-                  <button onClick={(e) => { e.stopPropagation(); router.push(`/profile/${post.userId}`); }} className="flex items-center gap-2 hover:opacity-80 transition">
+                  <button onClick={(e) => { e.stopPropagation(); router.push(`/profile/${post.userId}`); }} className="flex items-center gap-2 hover:opacity-80 transition-all duration-200 ease-in-out hover:scale-105 cursor-pointer">
                     <div className="w-8 h-8 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white text-xs font-bold">
                       {(post.username?.[0] || post.userEmail?.[0] || "?").toUpperCase()}
                     </div>
@@ -180,7 +180,7 @@ export default function BookmarksPage() {
                       <p className="text-xs text-gray-400">{formatDate(post.createdAt)}</p>
                     </div>
                   </button>
-                  <button onClick={(e) => handleToggleBookmark(e, post.id)} title="Remove bookmark" className="p-2 rounded-lg hover:bg-gray-100 transition">
+                  <button onClick={(e) => handleToggleBookmark(e, post.id)} title="Remove bookmark" className="p-2 rounded-lg hover:bg-gray-100 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 cursor-pointer">
                     <svg className="w-5 h-5" fill={bookmarkedIds.has(post.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" style={{ color: bookmarkedIds.has(post.id) ? "#F4A261" : "#9ca3af" }}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                     </svg>

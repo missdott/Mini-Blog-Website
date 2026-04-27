@@ -52,7 +52,7 @@ function CommentInput({ user, error, newComment, setNewComment, onSubmit, submit
             </div>
             <div className="flex-1 flex gap-2">
               <input type="text" className="flex-1 text-sm bg-gray-100 rounded-full px-4 py-2 focus:outline-none border border-gray-200" placeholder="Add a comment…" value={newComment} onChange={(e) => setNewComment(e.target.value)} maxLength={1000} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSubmit(); } }} />
-              <button onClick={onSubmit} disabled={submitting || !newComment.trim()} className="px-4 py-2 text-sm font-medium rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <button onClick={onSubmit} disabled={submitting || !newComment.trim()} className="px-4 py-2 text-sm font-medium rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer">
                 {submitting ? "…" : "Post"}
               </button>
             </div>
@@ -77,7 +77,7 @@ function CommentsList({ visibleComments, user, isAdmin, authorId, onLike, onEdit
         <CommentItemFull key={comment.id} comment={comment} currentUserId={user?.uid ?? null} isAdmin={isAdmin} postAuthorId={authorId} onLike={onLike} onEdit={onEdit} onDelete={onDelete} />
       ))}
       {hasMore && (
-        <button onClick={loadMore} disabled={loadingMore} className="w-full mt-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50">
+        <button onClick={loadMore} disabled={loadingMore} className="w-full mt-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-all duration-200 ease-in-out disabled:opacity-50 hover:underline cursor-pointer">
           {loadingMore ? "Loading…" : "Load more comments"}
         </button>
       )}
@@ -125,8 +125,8 @@ function CommentPreview({ comment, currentUserId, isAdmin, postAuthorId, onLike,
             <div className="mt-2">
               <textarea className="w-full rounded-lg p-2 text-sm resize-none focus:outline-none border border-gray-200" style={{ minHeight: "60px", backgroundColor: "#f9fafb" }} value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={1000} autoFocus />
               <div className="flex gap-2 mt-1.5">
-                <button onClick={handleSave} disabled={saving || !draft.trim()} className="text-xs px-2 py-1 rounded font-medium transition-opacity disabled:opacity-40 bg-gray-100 hover:bg-gray-200 text-gray-900">{saving ? "Saving…" : "Save"}</button>
-                <button onClick={() => { setEditing(false); setDraft(comment.content); }} className="text-xs px-2 py-1 text-gray-500 hover:text-gray-700">Cancel</button>
+                <button onClick={handleSave} disabled={saving || !draft.trim()} className="text-xs px-2 py-1 rounded font-medium transition-all duration-200 ease-in-out disabled:opacity-40 bg-gray-100 hover:bg-gray-200 text-gray-900 hover:scale-105 active:scale-95 cursor-pointer">{saving ? "Saving…" : "Save"}</button>
+                <button onClick={() => { setEditing(false); setDraft(comment.content); }} className="text-xs px-2 py-1 text-gray-500 hover:text-gray-700 transition-all duration-200 ease-in-out hover:scale-105 active:scale-95 cursor-pointer">Cancel</button>
               </div>
             </div>
           ) : (
@@ -134,7 +134,7 @@ function CommentPreview({ comment, currentUserId, isAdmin, postAuthorId, onLike,
           )}
           {!editing && showActions && (
             <div className="flex gap-3 mt-2 text-xs">
-              {currentUserId && <button onClick={() => onLike(comment.id, liked)} className="text-gray-500 hover:text-red-600 transition-colors">{liked ? "Unlike" : "Like"}</button>}
+              {currentUserId && <button onClick={() => onLike(comment.id, liked)} className="text-gray-500 hover:text-red-600 transition-all duration-200 ease-in-out hover:scale-110 cursor-pointer">{liked ? "Unlike" : "Like"}</button>}
               {isOwner && <button onClick={() => setEditing(true)} className="text-gray-500 hover:text-gray-900 transition-colors">Edit</button>}
               {(isOwner || canModerate) && <button onClick={() => onDelete(comment.id)} className="text-gray-500 hover:text-red-600 transition-colors">Delete</button>}
             </div>
@@ -184,8 +184,8 @@ function CommentItemFull({ comment, currentUserId, isAdmin, postAuthorId, onLike
             <div className="mt-2 -ml-3">
               <textarea className="w-full rounded-lg p-2 text-sm resize-none focus:outline-none border border-gray-200" style={{ minHeight: "70px", backgroundColor: "#f9fafb" }} value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={1000} autoFocus />
               <div className="flex gap-2 mt-2">
-                <button onClick={handleSave} disabled={saving || !draft.trim()} className="text-xs px-3 py-1.5 rounded-lg font-medium transition-opacity disabled:opacity-40 bg-gray-100 hover:bg-gray-200 text-gray-900">{saving ? "Saving…" : "Save"}</button>
-                <button onClick={() => { setEditing(false); setDraft(comment.content); }} className="text-xs px-3 py-1.5 rounded-lg text-gray-500 hover:text-gray-700">Cancel</button>
+                <button onClick={handleSave} disabled={saving || !draft.trim()} className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 ease-in-out disabled:opacity-40 bg-gray-100 hover:bg-gray-200 text-gray-900 hover:scale-105 active:scale-95 cursor-pointer">{saving ? "Saving…" : "Save"}</button>
+                <button onClick={() => { setEditing(false); setDraft(comment.content); }} className="text-xs px-3 py-1.5 rounded-lg text-gray-500 hover:text-gray-700 transition-all duration-200 ease-in-out hover:scale-105 active:scale-95 cursor-pointer">Cancel</button>
               </div>
             </div>
           ) : (
@@ -194,13 +194,13 @@ function CommentItemFull({ comment, currentUserId, isAdmin, postAuthorId, onLike
           {!editing && (
             <div className="flex items-center gap-4 mt-2 text-xs">
               {currentUserId && (
-                <button onClick={() => onLike(comment.id, liked)} className="flex items-center gap-1 text-gray-500 hover:text-red-600 transition-colors">
+                <button onClick={() => onLike(comment.id, liked)} className="flex items-center gap-1 text-gray-500 hover:text-red-600 transition-all duration-200 ease-in-out hover:scale-110 cursor-pointer">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                   {liked && <span className="text-red-600 font-medium">{comment.likes.length}</span>}
                 </button>
               )}
-              {isOwner && <button onClick={() => setEditing(true)} className="text-gray-500 hover:text-gray-900 transition-colors">Edit</button>}
-              {(isOwner || canModerate) && <button onClick={() => onDelete(comment.id)} className="text-gray-500 hover:text-red-600 transition-colors">Delete</button>}
+              {isOwner && <button onClick={() => setEditing(true)} className="text-gray-500 hover:text-gray-900 transition-all duration-200 ease-in-out hover:scale-110 cursor-pointer">Edit</button>}
+              {(isOwner || canModerate) && <button onClick={() => onDelete(comment.id)} className="text-gray-500 hover:text-red-600 transition-all duration-200 ease-in-out hover:scale-110 cursor-pointer">Delete</button>}
             </div>
           )}
         </div>
@@ -228,7 +228,7 @@ function CommentsModal({ isOpen, onClose, comments, authorId, user, isAdmin, onE
   const visibleComments = comments.filter((c) => !c.isDeleted);
   const listProps = { visibleComments, user, isAdmin, authorId, onLike, onEdit, onDelete, hasMore, loadingMore, loadMore };
   const inputProps = { user, error, newComment, setNewComment, onSubmit, submitting };
-  const closeBtn = <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors p-2 -mr-2"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>;
+  const closeBtn = <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-all duration-200 ease-in-out p-2 -mr-2 hover:scale-110 active:scale-95 cursor-pointer"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>;
 
   return (
     <>
@@ -295,7 +295,7 @@ export function CommentsSidebar({ authorId, comments, user, isAdmin, loading, ha
             {visibleComments.map((comment) => (
               <CommentItemFull key={comment.id} comment={comment} currentUserId={user?.uid ?? null} isAdmin={isAdmin} postAuthorId={authorId} onLike={onLike} onEdit={onEdit} onDelete={onDelete} />
             ))}
-            {hasMore && <button onClick={loadMore} disabled={loadingMore} className="w-full mt-2 mb-4 py-2 text-sm font-medium text-[#6FA8DC] hover:text-[#2F4B7C] transition-colors disabled:opacity-50">{loadingMore ? "Loading…" : "Load more comments"}</button>}
+            {hasMore && <button onClick={loadMore} disabled={loadingMore} className="w-full mt-2 mb-4 py-2 text-sm font-medium text-[#6FA8DC] hover:text-[#2F4B7C] transition-all duration-200 ease-in-out disabled:opacity-50 hover:underline cursor-pointer">{loadingMore ? "Loading…" : "Load more comments"}</button>}
           </>
         )}
       </div>
@@ -306,7 +306,7 @@ export function CommentsSidebar({ authorId, comments, user, isAdmin, loading, ha
             <div className="flex gap-2 items-center">
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0" style={{ background: generateAvatarColor(user.uid) }}>{userInitial(user)}</div>
               <input type="text" className="flex-1 text-sm bg-gray-50 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#6FA8DC] border border-gray-200" placeholder="Add a comment…" value={newComment} onChange={(e) => setNewComment(e.target.value)} maxLength={1000} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSubmit(); } }} />
-              <button onClick={onSubmit} disabled={submitting || !newComment.trim()} className="px-4 py-2 text-sm font-semibold rounded-full bg-[#6FA8DC] hover:bg-[#5A90C4] text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0">{submitting ? "…" : "Post"}</button>
+              <button onClick={onSubmit} disabled={submitting || !newComment.trim()} className="px-4 py-2 text-sm font-semibold rounded-full bg-[#6FA8DC] hover:bg-[#5A90C4] text-white transition-all duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed shrink-0 hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer">{submitting ? "…" : "Post"}</button>
             </div>
           </div>
         ) : (
@@ -407,7 +407,7 @@ export default function Comments({ postId, authorId }: CommentsProps) {
               <CommentPreview key={comment.id} comment={comment} currentUserId={s.user?.uid ?? null} isAdmin={s.isAdmin} postAuthorId={authorId} onLike={s.handleLike} onEdit={s.handleEdit} onDelete={s.handleDelete} />
             ))}
             {visibleComments.length > 0 && (
-              <button onClick={() => s.setModalOpen(true)} className="text-sm text-gray-600 hover:text-gray-900 transition-colors mt-2 font-medium">
+              <button onClick={() => s.setModalOpen(true)} className="text-sm text-gray-600 hover:text-gray-900 transition-all duration-200 ease-in-out mt-2 font-medium hover:scale-105 active:scale-95 cursor-pointer">
                 {visibleComments.length === 1 ? "1 comment" : `View all ${visibleComments.length} comments`}
               </button>
             )}
@@ -452,7 +452,7 @@ export function CommentsController({ postId, authorId }: CommentsProps) {
                 <CommentPreview key={comment.id} comment={comment} currentUserId={s.user?.uid ?? null} isAdmin={s.isAdmin} postAuthorId={authorId} onLike={s.handleLike} onEdit={s.handleEdit} onDelete={s.handleDelete} />
               ))}
               {visibleComments.length > 0 && (
-                <button onClick={() => s.setModalOpen(true)} className="text-sm text-gray-600 hover:text-gray-900 transition-colors mt-2 font-medium">
+                <button onClick={() => s.setModalOpen(true)} className="text-sm text-gray-600 hover:text-gray-900 transition-all duration-200 ease-in-out mt-2 font-medium hover:scale-105 active:scale-95 cursor-pointer">
                   {visibleComments.length === 1 ? "1 comment" : `View all ${visibleComments.length} comments`}
                 </button>
               )}

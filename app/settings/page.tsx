@@ -6,11 +6,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/lib/AuthContext";
 import { signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
-import { auth, db, storage } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 import Modal from "@/lib/Modal";
-import { compressProfileImage, formatFileSize } from "@/lib/imageUtils";
+import { compressProfileImage, formatFileSize, uploadToCloudinary } from "@/lib/imageUtils";
 
 // ─── Types & Helpers ──────────────────────────────────────────────────────────
 
@@ -114,9 +114,7 @@ export default function SettingsPage() {
     try {
       let imageUrl = profileImagePreview;
       if (profileImageFile) {
-        const imgRef = ref(storage, `profile-images/${user.uid}`);
-        await uploadBytes(imgRef, profileImageFile);
-        imageUrl = await getDownloadURL(imgRef);
+        imageUrl = await uploadToCloudinary(profileImageFile);
         setProfileImagePreview(imageUrl); setProfileImageFile(null);
       }
       await setDoc(doc(db, "users", user.uid), { username: username.trim(), bio: bio.trim(), gender, profileImage: imageUrl, email: user.email, userId: user.uid, updatedAt: new Date() }, { merge: true });
