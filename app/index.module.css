@@ -1,0 +1,805 @@
+/* index.module.css */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@400;500;600;700&family=Lora:ital,wght@0,400;1,400&display=swap');
+
+/*
+  Colors (original palette):
+  Primary:    #6FA8DC  — soft sky blue
+  Secondary:  #2F4B7C  — muted navy blue
+  Dark navy:  #1F2F46  — header / footer bg
+  Accent:     #F4A261  — warm orange highlight
+  Background: #f9fdfd  — near-white base
+*/
+
+/* ─────────────────────────────────────────
+   LOADING SCREEN
+───────────────────────────────────────── */
+.loadingScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fdfd;
+}
+
+.loadingInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.penLoader {
+  animation: penPulse 1.6s ease-in-out infinite;
+}
+
+.penPath {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: penDraw 1.6s ease-in-out infinite;
+}
+
+@keyframes penDraw {
+  0%   { stroke-dashoffset: 60; opacity: 0.4; }
+  50%  { stroke-dashoffset: 0;  opacity: 1;   }
+  100% { stroke-dashoffset: 60; opacity: 0.4; }
+}
+
+@keyframes penPulse {
+  0%, 100% { transform: scale(1);    }
+  50%       { transform: scale(1.08); }
+}
+
+.loadingText {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #2F4B7C;
+  letter-spacing: 0.03em;
+}
+
+/* ─────────────────────────────────────────
+   PAGE SHELL
+───────────────────────────────────────── */
+.welcomePage {
+  min-height: 100vh;
+  background-color: #f9fdfd;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────
+   HEADER — glassmorphism over original navy gradient
+───────────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(to right, rgba(31, 47, 70, 0.92), rgba(47, 75, 124, 0.92), rgba(31, 47, 70, 0.92));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 24px rgba(31, 47, 70, 0.2);
+  border-bottom: 1px solid rgba(111, 168, 220, 0.18);
+}
+
+.headerBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Space between logo and text */
+}
+
+.headerTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  /* Ensure no margin-top is pushing the text down */
+  margin: 0;
+  font-family: 'DM Serif Display', Georgia, serif;
+  color: white;
+  position: relative;
+  cursor: default;
+}
+
+.headerTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #6FA8DC;
+  border-radius: 2px;
+  transform: scaleX(0.35);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.headerTitle:hover::after {
+  transform: scaleX(1);
+}
+
+.authButtons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.loginBtn,
+.signupBtn {
+  width: 118px;
+  height: 47px;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-sizing: border-box;
+}
+
+.loginBtn {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.loginBtn:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.signupBtn {
+  background-color: #6FA8DC;
+  color: white;
+  box-shadow: 0 4px 14px rgba(111, 168, 220, 0.35);
+}
+
+.signupBtn:hover {
+  background-color: #5A90C4;
+  box-shadow: 0 6px 20px rgba(111, 168, 220, 0.45);
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────
+   MAIN
+───────────────────────────────────────── */
+.main {
+  flex: 1;
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────
+   HERO — carousel lives here
+───────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* No padding here — heroContent handles it */
+}
+
+/* ─────────────────────────────────────────
+   CAROUSEL
+───────────────────────────────────────── */
+
+/* Root: fills the whole hero, sits behind everything */
+.carouselRoot {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Embla viewport */
+.carouselViewport {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* Embla container — flex row */
+.carouselContainer {
+  display: flex;
+  height: 100%;
+  touch-action: pan-y;
+  /* Smooth transition between slides */
+  backface-visibility: hidden;
+}
+
+/* Each slide: full-width, full-height, cover image */
+.carouselSlide {
+  flex: 0 0 100%;
+  min-width: 0;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Dark gradient overlay — keeps text readable */
+.carouselOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+   rgba(17, 24, 39, 0.30) 0%,
+    rgba(17, 24, 39, 0.20) 50%,
+    rgba(17, 24, 39, 0.40) 100%
+  );
+  z-index: 1;
+}
+
+/* Prev / Next arrow buttons */
+.carouselBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.carouselBtn:hover {
+  background: rgba(111, 168, 220, 0.45);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.carouselBtnPrev {
+  left: 1.25rem;
+}
+
+.carouselBtnNext {
+  right: 1.25rem;
+}
+
+/* Dot indicators */
+.carouselDots {
+  position: absolute;
+  bottom: 4.5rem;   /* sits just above the scroll hint */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.carouselDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 0.25s ease, transform 0.25s ease;
+  padding: 0;
+}
+
+.carouselDot:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.carouselDotActive {
+  background: #6FA8DC;
+  transform: scale(1.35);
+}
+
+/* Snap display  "2 / 4" */
+.carouselSnap {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ─────────────────────────────────────────
+   HERO CONTENT — floats above carousel
+───────────────────────────────────────── */
+.heroContent {
+  position: relative;
+  z-index: 5;           /* above overlay (z:1) and carousel (z:0) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 5rem 1.5rem 7rem;   /* extra bottom padding for dots */
+  width: 100%;
+  max-width: 860px;
+}
+
+/* Eyebrow pill */
+.eyebrow {
+  display: inline-block;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6FA8DC;
+  background: rgba(111, 168, 220, 0.18);
+  border: 1px solid rgba(111, 168, 220, 0.38);
+  padding: 0.35rem 1rem;
+  border-radius: 9999px;
+  margin-bottom: 1.8rem;
+  animation: fadeUp 0.7s ease both;
+  /* Slight text-shadow so it pops against any photo */
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.title {
+  font-size: clamp(2.2rem, 5vw, 4.5rem);
+  font-family: 'DM Serif Display', Georgia, serif;
+  /* White text over photos */
+  color: #ffffff;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.35);
+  line-height: 1.15;
+  max-width: 760px;
+  margin: 0 auto 1.2rem;
+  animation: fadeUp 0.8s ease 0.08s both;
+}
+
+.titleItalic {
+  font-style: italic;
+  color: #F4A261;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  font-family: 'Lora', Georgia, serif;
+  font-weight: 400;
+  /* White over photos */
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+  max-width: 480px;
+  line-height: 1.75;
+  margin: 0 auto 2.5rem;
+  animation: fadeUp 0.8s ease 0.16s both;
+}
+
+/* CTA button */
+.ctaButton {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6FA8DC 0%, #5A90C4 100%);
+  border: none;
+  cursor: pointer;
+  padding: 0.9rem 2.8rem;
+  border-radius: 9999px;
+  box-shadow:
+    0 6px 24px rgba(111, 168, 220, 0.45),
+    0 2px 8px rgba(111, 168, 220, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  letter-spacing: 0.02em;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  animation: fadeUp 0.8s ease 0.24s both;
+  overflow: hidden;
+  position: relative;
+}
+
+.ctaButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.ctaButton:hover::before {
+  left: 100%;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 10px 32px rgba(111, 168, 220, 0.55),
+    0 4px 12px rgba(111, 168, 220, 0.3);
+}
+
+/* Scroll hint */
+.scrollHint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  animation: fadeUp 1s ease 0.7s both;
+}
+
+.scrollLine {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(to bottom, rgba(111, 168, 220, 0.8), transparent);
+  animation: scrollPulse 2.2s ease-in-out infinite;
+}
+
+.scrollLabel {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@keyframes scrollPulse {
+  0%, 100% { transform: scaleY(1);   opacity: 0.45; }
+  50%       { transform: scaleY(1.3); opacity: 1;    }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ─────────────────────────────────────────
+   FEATURES
+───────────────────────────────────────── */
+.features {
+  padding: 6rem 3rem;
+  background: #eef4fb;
+  position: relative;
+}
+
+.features::before,
+.features::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(111, 168, 220, 0.4) 40%, rgba(111, 168, 220, 0.4) 60%, transparent);
+}
+
+.features::before { top: 0; }
+.features::after  { bottom: 0; }
+
+.featuresLabel {
+  display: block;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6FA8DC;
+  text-align: center;
+  margin-bottom: 0.9rem;
+}
+
+.featuresTitle {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  font-family: 'DM Serif Display', Georgia, serif;
+  color: #1F2F46;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.featureCard {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(31, 47, 70, 0.07);
+  border: 1px solid rgba(111, 168, 220, 0.18);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.featureCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(111, 168, 220, 0.18);
+  border-color: rgba(111, 168, 220, 0.4);
+}
+
+.featureCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 1.5rem 1.5rem 0 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.featureCard:hover::before {
+  opacity: 1;
+}
+
+.cardBlue::before   { background: linear-gradient(to right, #6FA8DC, #a8cff0); }
+.cardNavy::before   { background: linear-gradient(to right, #2F4B7C, #6FA8DC); }
+.cardOrange::before { background: linear-gradient(to right, #F4A261, #f9c898); }
+
+.iconBlob {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 1.4rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blobBg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cardBlue  .blobBg { fill: rgba(111, 168, 220, 0.13); }
+.cardNavy  .blobBg { fill: rgba(47,  75,  124, 0.10); }
+.cardOrange .blobBg { fill: rgba(244, 162, 97,  0.13); }
+
+.iconInner {
+  position: relative;
+  z-index: 1;
+}
+
+.cardBlue   .iconInner { stroke: #6FA8DC; }
+.cardNavy   .iconInner { stroke: #2F4B7C; }
+.cardOrange .iconInner { stroke: #F4A261; }
+
+.cardTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-family: 'DM Serif Display', Georgia, serif;
+  color: #1F2F46;
+  margin-bottom: 0.5rem;
+}
+
+.cardBody {
+  font-family: 'Lora', Georgia, serif;
+  color: #2F4B7C;
+  font-size: 0.93rem;
+  line-height: 1.7;
+}
+
+.cardQuote {
+  margin-top: 1.1rem;
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: #6FA8DC;
+  padding-left: 0.75rem;
+  border-left: 2px solid rgba(111, 168, 220, 0.35);
+  text-align: left;
+}
+
+/* ─────────────────────────────────────────
+   TESTIMONIAL
+───────────────────────────────────────── */
+.testimonial {
+  padding: 5.5rem 1.5rem;
+  text-align: center;
+  background: #f9fdfd;
+}
+
+.ornament {
+  display: block;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 4.5rem;
+  line-height: 0.5;
+  color: rgba(111, 168, 220, 0.35);
+  margin-bottom: 1.6rem;
+  user-select: none;
+}
+
+.quote {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.3rem, 2.8vw, 1.9rem);
+  color: #2F4B7C;
+  max-width: 640px;
+  margin: 0 auto 1.1rem;
+  line-height: 1.55;
+}
+
+.cite {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6FA8DC;
+  font-style: normal;
+}
+
+/* ─────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────── */
+.footer {
+  background: linear-gradient(to right, #1F2F46, #2F4B7C, #1F2F46);
+  color: #e5e7eb;
+  padding: 3rem 2rem 1.5rem;
+  margin-top: 4rem;
+  box-shadow: 0 -4px 12px rgba(31, 47, 70, 0.15);
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 2rem; right: 2rem;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(111, 168, 220, 0.35), transparent);
+}
+
+.footerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 2rem;
+}
+
+.footerColumn h4 {
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  font-family: 'Poppins', sans-serif;
+  opacity: 0.7;
+}
+
+.footerColumn ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footerColumn li { margin-bottom: 0.5rem; }
+
+.footerColumn a {
+  color: #9ca3af;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  transition: color 0.2s;
+}
+
+.footerColumn a:hover { color: #6FA8DC; }
+
+.footerBrand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.6rem;
+  background: linear-gradient(135deg, #6FA8DC, #F4A261);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'DM Serif Display', serif;
+  display: block;
+}
+
+.footerTagline {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: rgba(111, 168, 220, 0.55);
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.footerContact {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin: 0.25rem 0;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+}
+
+.footerCopyright {
+  max-width: 1200px;
+  margin: 2rem auto 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(111, 168, 220, 0.18);
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .features { padding: 4rem 2rem; }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .featureCard {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  /* Smaller arrow buttons on mobile */
+  .carouselBtn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .carouselBtnPrev { left: 0.75rem; }
+  .carouselBtnNext { right: 0.75rem; }
+}
+
+@media (max-width: 640px) {
+  .header { padding: 0.85rem 1rem; }
+
+  .authButtons { gap: 0.5rem; }
+
+  .loginBtn,
+  .signupBtn {
+    width: 100px;
+    height: 42px;
+    font-size: 0.9rem;
+  }
+
+  .footerContent {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .footerColumn ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Hide arrows on very small screens — swipe works */
+  .carouselBtn { display: none; }
+}

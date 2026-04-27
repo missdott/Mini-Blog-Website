@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      // Frontend paths
+      "@/frontend/*": ["./frontend/*"],
+      "@/components/*": ["./frontend/components/*"],
+      "@/hooks/*": ["./frontend/hooks/*"],
+      "@/contexts/*": ["./frontend/contexts/*"],
+      "@/styles/*": ["./frontend/styles/*"],
+      "@/app/*": ["./frontend/app/*"],
+      
+      // Backend paths
+      "@/backend/*": ["./backend/*"],
+      "@/lib/*": ["./backend/lib/*"],
+      "@/services/*": ["./backend/services/*"],
+      "@/models/*": ["./backend/models/*"],
+      "@/api/*": ["./backend/api/*"],
+      
+      // Config paths
+      "@/config/*": ["./config/*"],
+      
+      // Legacy paths (for backward compatibility during migration)
+      "@/*": ["./*"]
+    },
+    "target": "ES2017",
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "frontend/**/*.ts",
+    "frontend/**/*.tsx",
+    "backend/**/*.ts",
+    "backend/**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
+}

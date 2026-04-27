@@ -1,0 +1,84 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // ============================================
+    // POSTS COLLECTION
+    // ============================================
+    match /posts/{postId} {
+      // Read: public posts are readable by anyone; private/draft posts are restricted to owner
+      allow read: if (
+        resource.data.isPrivate == false && resource.data.isDraft == false
+      ) || (isAuthenticated() && isOwner(resource.data.userId));
+      
+      // Create: users can create posts for themselves
+      allow create: if isAuthenticated() && 
+        request.auth.uid == request.resource.data.userId;
+      
+      // Update: owners can update their posts, anyone can update likes
+      allow update: if isAuthenticated() && (
+        isOwner(resource.data.userId) ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+      );
+      
+      // Delete: only owner can delete
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+    
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+    match /users/{userId} {
+      // Anyone authenticated can read user profiles
+      allow read: if isAuthenticated();
+      
+      // Users can only create/update/delete their own profile
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // ============================================
+    // COMMENTS COLLECTION (future use)
+    // ============================================
+    match /comments/{commentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+        request.auth.uid == request.resource.data.userId;
+      allow update, delete: if isAuthenticated() && 
+        request.auth.uid == resource.data.userId;
+    }
+
+    // ============================================
+    // REPORTS COLLECTION
+    // ============================================
+    function isAdminUser() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    match /reports/{reportId} {
+      allow create: if isAuthenticated() &&
+        request.auth.uid == request.resource.data.userId;
+      allow read: if isAuthenticated() && isAdminUser();
+      allow update, delete: if false;
+    }
+    
+    // ============================================
+    // DENY EVERYTHING ELSE
+    // ============================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
