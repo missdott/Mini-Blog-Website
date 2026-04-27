@@ -1,4 +1,4 @@
-# NOOK | Full-Stack Blog & Social Media Platform
+# NOOK | Mini Blog & Social Media Platform
 
 ## Getting Started
 
