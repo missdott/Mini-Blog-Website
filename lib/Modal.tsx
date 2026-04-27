@@ -53,13 +53,13 @@ export default function Modal({ isOpen, onClose, onConfirm, title, message, type
             <>
               <button
                 onClick={onClose}
-                className="px-6 py-2.5 border-2 border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition"
+                className="px-6 py-2.5 border-2 border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-all duration-200 ease-in-out hover:border-gray-400 hover:shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirm}
-                className="px-6 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition"
+                className="px-6 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-all duration-200 ease-in-out hover:shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
               >
                 Delete
               </button>
@@ -67,7 +67,7 @@ export default function Modal({ isOpen, onClose, onConfirm, title, message, type
           ) : (
             <button
               onClick={handleConfirm || onClose}
-              className="px-8 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+              className="px-8 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 ease-in-out hover:shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
             >
               OK
             </button>

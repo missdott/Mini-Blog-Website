@@ -104,3 +104,39 @@
   border-top: 2px solid #e5e7eb;
   margin: 2rem 0;
 }
+
+/* ─────────────────────────────────────────
+   BUTTON & INTERACTIVE STYLES
+───────────────────────────────────────── */
+
+/* Global button styles */
+button {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Hover effect utility for interactive elements */
+a:hover {
+  cursor: pointer;
+}
+
+/* Smooth opacity transitions */
+.transition-gentle {
+  transition: all 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-scale:hover {
+  transform: scale(1.03);
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}

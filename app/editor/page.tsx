@@ -220,14 +220,14 @@ export default function EditorPage() {
                 <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearchNavigate()} placeholder="Search posts..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6FA8DC] text-sm bg-white" />
                 <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" {...ip}><path {...sw2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </div>
-              <button onClick={handleSearchNavigate} disabled={!searchQuery.trim()} className="px-4 py-2 text-sm font-bold text-white bg-[#6FA8DC] rounded-lg hover:bg-[#5A90C4] transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0">Search</button>
+              <button onClick={handleSearchNavigate} disabled={!searchQuery.trim()} className="px-4 py-2 text-sm font-bold text-white bg-[#6FA8DC] rounded-lg hover:bg-[#5A90C4] transition-all duration-200 ease-in-out disabled:opacity-40 disabled:cursor-not-allowed shrink-0 hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer">Search</button>
             </div>
           </div>
           <nav className="flex items-center gap-8 shrink-0">
             <Link href="/home" className={navLink}>Home</Link>
             <Link href="/dashboard" className={navLink}>My Blogs</Link>
             <div className="relative" ref={menuRef}>
-              <button onClick={() => setShowMenu((s) => !s)} className="p-2 hover:bg-[#F6F3EC] rounded-full transition-colors group">
+              <button onClick={() => setShowMenu((s) => !s)} className="p-2 hover:bg-[#F6F3EC] rounded-full transition-all duration-200 ease-in-out group cursor-pointer hover:scale-110 active:scale-95">
                 <svg className="w-6 h-6 text-[#2F4B7C] group-hover:scale-110 transition-transform" {...ip}><path {...sw2} d="M4 6h16M4 12h16M4 18h16" /></svg>
               </button>
               {showMenu && (
@@ -241,7 +241,7 @@ export default function EditorPage() {
                     <Link href="/settings" onClick={() => setShowMenu(false)} className={menuItem}>Settings</Link>
                   </div>
                   <div className="border-t border-gray-50 pt-2 pb-1">
-                    <button onClick={handleLogout} className="w-full text-left px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors">Log Out</button>
+                    <button onClick={handleLogout} className="w-full text-left px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-all duration-200 ease-in-out hover:text-red-700 cursor-pointer">Log Out</button>
                   </div>
                 </div>
               )}
@@ -252,7 +252,7 @@ export default function EditorPage() {
 
       {/* Back Button */}
       <div className="pl-4 pr-6 py-4">
-        <button onClick={() => { localStorage.removeItem("editingPost"); router.push("/dashboard"); }} className="inline-flex items-center gap-2 text-sm font-medium text-[#2F4B7C] hover:text-[#6FA8DC] transition-colors group">
+        <button onClick={() => { localStorage.removeItem("editingPost"); router.push("/dashboard"); }} className="inline-flex items-center gap-2 text-sm font-medium text-[#2F4B7C] hover:text-[#6FA8DC] transition-all duration-200 ease-in-out group cursor-pointer hover:scale-105 active:scale-95">
           <svg className="w-5 h-5 transition-transform group-hover:-translate-x-1" {...ip}><path {...sw2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           <span>Back to Dashboard</span>
         </button>

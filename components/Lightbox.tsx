@@ -18,7 +18,7 @@ interface LightboxProps {
 
 const ip = { fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" } as const;
 const sw2 = { strokeLinecap: "round" as const, strokeLinejoin: "round" as const, strokeWidth: 2 };
-const navBtn = "absolute top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 backdrop-blur-sm text-white rounded-full p-3 transition";
+const navBtn = "absolute top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-sm text-white rounded-full p-3 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-110 active:scale-95 cursor-pointer";
 
 export default function Lightbox({ post, onClose, onPrev, onNext, totalCount, currentIndex }: LightboxProps) {
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function Lightbox({ post, onClose, onPrev, onNext, totalCount, cu
                 <div className="w-7 h-7 rounded-full bg-[#6FA8DC] flex items-center justify-center text-white text-xs font-bold">{post.username?.[0]?.toUpperCase()}</div>
                 <span className="text-sm font-semibold text-[#2F4B7C]">{post.username}</span>
               </div>
-              <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
+              <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-all duration-200 p-1 rounded-lg hover:bg-gray-100 hover:scale-110 active:scale-95 cursor-pointer">
                 <svg className="w-5 h-5" {...ip}><path {...sw2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -83,7 +83,7 @@ export default function Lightbox({ post, onClose, onPrev, onNext, totalCount, cu
                   {post.comments ?? 0} comments
                 </span>
               </div>
-              <Link href={`/post/${post.id}`} className="block w-full text-center bg-[#6FA8DC] hover:bg-[#5a8ec4] text-white text-sm font-semibold py-2.5 rounded-xl transition">Open Full Post</Link>
+              <Link href={`/post/${post.id}`} className="block w-full text-center bg-[#6FA8DC] hover:bg-[#5a8ec4] text-white text-sm font-semibold py-2.5 rounded-xl transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105 active:scale-95 cursor-pointer">Open Full Post</Link>
             </div>
           </div>
         </motion.div>

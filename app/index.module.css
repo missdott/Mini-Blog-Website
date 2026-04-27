@@ -139,7 +139,7 @@
   font-family: 'Poppins', sans-serif;
   border-radius: 9999px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -154,8 +154,14 @@
 }
 
 .loginBtn:hover {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(255, 255, 255, 0.28);
   border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.loginBtn:active {
+  transform: translateY(0);
 }
 
 .signupBtn {
@@ -166,8 +172,12 @@
 
 .signupBtn:hover {
   background-color: #5A90C4;
-  box-shadow: 0 6px 20px rgba(111, 168, 220, 0.45);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(111, 168, 220, 0.5);
+  transform: translateY(-2px);
+}
+
+.signupBtn:active {
+  transform: translateY(0);
 }
 
 /* ─────────────────────────────────────────
@@ -259,12 +269,18 @@
   color: white;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .carouselBtn:hover {
-  background: rgba(111, 168, 220, 0.45);
-  transform: translateY(-50%) scale(1.08);
+  background: rgba(111, 168, 220, 0.5);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 4px 16px rgba(111, 168, 220, 0.3);
+}
+
+.carouselBtn:active {
+  transform: translateY(-50%) scale(0.98);
 }
 
 .carouselBtnPrev {
@@ -294,12 +310,17 @@
   border: none;
   cursor: pointer;
   background: rgba(255, 255, 255, 0.4);
-  transition: background 0.25s ease, transform 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0;
 }
 
 .carouselDot:hover {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.75);
+  transform: scale(1.15);
+}
+
+.carouselDot:active {
+  transform: scale(1.05);
 }
 
 .carouselDotActive {
@@ -400,7 +421,7 @@
     0 2px 8px rgba(111, 168, 220, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
   letter-spacing: 0.02em;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: fadeUp 0.8s ease 0.24s both;
   overflow: hidden;
   position: relative;
@@ -422,10 +443,17 @@
 }
 
 .ctaButton:hover {
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-3px) scale(1.03);
   box-shadow:
-    0 10px 32px rgba(111, 168, 220, 0.55),
-    0 4px 12px rgba(111, 168, 220, 0.3);
+    0 12px 36px rgba(111, 168, 220, 0.6),
+    0 6px 16px rgba(111, 168, 220, 0.35);
+}
+
+.ctaButton:active {
+  transform: translateY(-1px) scale(0.99);
+  box-shadow:
+    0 4px 16px rgba(111, 168, 220, 0.4),
+    0 2px 8px rgba(111, 168, 220, 0.2);
 }
 
 /* Scroll hint */

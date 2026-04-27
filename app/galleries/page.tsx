@@ -78,7 +78,7 @@ function ModalHeader({ title, sub, onClose }: { title: React.ReactNode; sub: str
   return (
     <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
       <div>{title}<p className="text-sm text-gray-400 mt-0.5">{sub}</p></div>
-      <button onClick={onClose} className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition text-gray-500">
+      <button onClick={onClose} className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-all duration-200 ease-in-out text-gray-500 hover:scale-110 active:scale-95 cursor-pointer">
         <svg className="w-5 h-5" {...ip}><path {...sw2} d="M6 18L18 6M6 6l12 12" /></svg>
       </button>
     </div>
@@ -88,7 +88,7 @@ function ModalHeader({ title, sub, onClose }: { title: React.ReactNode; sub: str
 function PostRow({ post, onClick, thumbSize = "w-12 h-12", iconSize = "w-5 h-5" }: { post: Post; onClick: () => void; thumbSize?: string; iconSize?: string }) {
   const src = post.featuredImages?.[0] || post.featuredImage || "";
   return (
-    <button onClick={onClick} className="w-full flex items-center gap-4 bg-[#F6F3EC] hover:bg-[#EDE9E0] rounded-xl px-4 py-3 transition text-left group">
+    <button onClick={onClick} className="w-full flex items-center gap-4 bg-[#F6F3EC] hover:bg-[#EDE9E0] rounded-xl px-4 py-3 transition-all duration-200 ease-in-out text-left group hover:shadow-md cursor-pointer">
       <div className={`${thumbSize} rounded-lg overflow-hidden bg-gray-200 shrink-0 relative`}>
         {src ? <PostThumb src={src} size={thumbSize.includes("12") ? "48px" : "40px"} /> : <NoThumb iconSize={iconSize} />}
       </div>
@@ -174,7 +174,7 @@ function TagModal({ tag, posts, onClose }: { tag: string; posts: Post[]; onClose
                 <p className="text-xs font-semibold text-gray-500 mb-2">{month}</p>
                 <div className="space-y-2">
                   {mPosts.map((post) => (
-                    <button key={post.id} onClick={() => router.push(`/post/${post.id}`)} className="w-full flex items-center gap-3 bg-[#F6F3EC] hover:bg-[#EDE9E0] rounded-xl px-4 py-3 transition text-left group">
+                    <button key={post.id} onClick={() => router.push(`/post/${post.id}`)} className="w-full flex items-center gap-3 bg-[#F6F3EC] hover:bg-[#EDE9E0] rounded-xl px-4 py-3 transition-all duration-200 ease-in-out text-left group hover:shadow-md cursor-pointer">
                       <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-200 shrink-0 relative">
                         {(post.featuredImages?.[0] || post.featuredImage)
                           ? <PostThumb src={post.featuredImages?.[0] || post.featuredImage || ""} size="40px" />
@@ -287,7 +287,7 @@ export default function GalleriesPage() {
                 <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearchNavigate()} placeholder="Search posts..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6FA8DC] text-sm bg-white" />
                 <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" {...ip}><path {...sw2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </div>
-              <button onClick={handleSearchNavigate} disabled={!searchQuery.trim()} className="px-4 py-2 text-sm font-bold text-white bg-[#6FA8DC] rounded-lg hover:bg-[#5A90C4] transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0">Search</button>
+              <button onClick={handleSearchNavigate} disabled={!searchQuery.trim()} className="px-4 py-2 text-sm font-bold text-white bg-[#6FA8DC] rounded-lg hover:bg-[#5A90C4] transition-all duration-200 ease-in-out disabled:opacity-40 disabled:cursor-not-allowed shrink-0 hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer">Search</button>
             </div>
           </div>
           <nav className="flex items-center gap-8 shrink-0">
@@ -295,7 +295,7 @@ export default function GalleriesPage() {
             <Link href="/dashboard" className={navLink}>My Blogs</Link>
             <Link href="/galleries" className={navLink}>Galleries</Link>
             <div className="relative" ref={menuRef}>
-              <button onClick={() => setShowMenu((s) => !s)} className="p-2 hover:bg-[#F6F3EC] rounded-full transition-colors group">
+              <button onClick={() => setShowMenu((s) => !s)} className="p-2 hover:bg-[#F6F3EC] rounded-full transition-all duration-200 ease-in-out group cursor-pointer hover:scale-110 active:scale-95">
                 <svg className="w-6 h-6 text-[#2F4B7C] group-hover:scale-110 transition-transform" {...ip}><path {...sw2} d="M4 6h16M4 12h16M4 18h16" /></svg>
               </button>
               {showMenu && (
@@ -310,7 +310,7 @@ export default function GalleriesPage() {
                     <Link href="/settings" onClick={() => setShowMenu(false)} className={menuItem}>Settings</Link>
                   </div>
                   <div className="border-t border-gray-50 pt-2 pb-1">
-                    <button onClick={handleLogout} className="w-full text-left px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors">Log Out</button>
+                    <button onClick={handleLogout} className="w-full text-left px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-all duration-200 ease-in-out hover:text-red-700 cursor-pointer">Log Out</button>
                   </div>
                 </div>
               )}
