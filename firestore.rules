@@ -1,84 +1,62 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper functions
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-    
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-    
-    // ============================================
-    // POSTS COLLECTION
-    // ============================================
-    match /posts/{postId} {
-      // Read: public posts are readable by anyone; private/draft posts are restricted to owner
-      allow read: if (
-        resource.data.isPrivate == false && resource.data.isDraft == false
-      ) || (isAuthenticated() && isOwner(resource.data.userId));
-      
-      // Create: users can create posts for themselves
-      allow create: if isAuthenticated() && 
-        request.auth.uid == request.resource.data.userId;
-      
-      // Update: owners can update their posts, anyone can update likes
-      allow update: if isAuthenticated() && (
-        isOwner(resource.data.userId) ||
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
-      );
-      
-      // Delete: only owner can delete
-      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
-    }
-    
-    // ============================================
-    // USERS COLLECTION
-    // ============================================
-    match /users/{userId} {
-      // Anyone authenticated can read user profiles
-      allow read: if isAuthenticated();
-      
-      // Users can only create/update/delete their own profile
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow update: if isAuthenticated() && request.auth.uid == userId;
-      allow delete: if isAuthenticated() && request.auth.uid == userId;
-    }
-    
-    // ============================================
-    // COMMENTS COLLECTION (future use)
-    // ============================================
-    match /comments/{commentId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && 
-        request.auth.uid == request.resource.data.userId;
-      allow update, delete: if isAuthenticated() && 
-        request.auth.uid == resource.data.userId;
-    }
 
-    // ============================================
-    // REPORTS COLLECTION
-    // ============================================
-    function isAdminUser() {
-      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+    // ── Users ──────────────────────────────────────────────────────────────
+    // Any authenticated user can read any user profile (needed for pfp lookup)
+    // Only the owner or an admin can write their own document
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null &&
+        (request.auth.uid == userId ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin");
+      allow delete: if request.auth != null &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
-    match /reports/{reportId} {
-      allow create: if isAuthenticated() &&
-        request.auth.uid == request.resource.data.userId;
-      allow read: if isAuthenticated() && isAdminUser();
-      allow update, delete: if false;
+    // ── Posts ───────────────────────────────────────────────────────────────
+    // Public/published posts readable by all authenticated users
+    // Only the author can create or delete their posts
+    // Any authenticated user can toggle likes and update comment count
+    match /posts/{postId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null &&
+        request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null &&
+        (resource.data.userId == request.auth.uid ||
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['likes', 'comments']));
+      allow delete: if request.auth != null &&
+        (resource.data.userId == request.auth.uid ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin");
     }
-    
-    // ============================================
-    // DENY EVERYTHING ELSE
-    // ============================================
-    match /{document=**} {
-      allow read, write: if false;
+
+    // ── Comments ────────────────────────────────────────────────────────────
+    match /comments/{commentId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.content.size() <= 1000;
+      allow update: if request.auth != null &&
+        (resource.data.userId == request.auth.uid ||
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']));
+      allow delete: if request.auth != null &&
+        (resource.data.userId == request.auth.uid ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin");
     }
+
+    // ── Notifications ────────────────────────────────────────────────────────
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null &&
+        resource.data.recipientId == request.auth.uid;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null &&
+        resource.data.recipientId == request.auth.uid;
+      allow delete: if request.auth != null &&
+        (resource.data.senderId == request.auth.uid ||
+         resource.data.recipientId == request.auth.uid);
+    }
+
   }
 }
