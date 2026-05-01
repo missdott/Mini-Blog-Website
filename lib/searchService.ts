@@ -4,6 +4,7 @@ import {
   where,
   orderBy,
   getDocs,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -18,15 +19,11 @@ export interface SearchPost {
   tags?: string[];
   likes?: string[];
   comments?: number;
-  createdAt: any;
+  createdAt: Timestamp;
   isPrivate: boolean;
   isDraft: boolean;
 }
 
-/**
- * Fetch all public published posts and filter client-side.
- * Searches across: content, tags, categories, username/email.
- */
 export async function searchPosts(searchQuery: string): Promise<SearchPost[]> {
   if (!searchQuery.trim()) return [];
 

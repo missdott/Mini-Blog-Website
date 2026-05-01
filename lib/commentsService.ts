@@ -17,6 +17,7 @@ import {
   getDoc,
   QueryDocumentSnapshot,
   DocumentData,
+  QueryConstraint,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { createCommentNotification } from "./notificationService";
@@ -65,7 +66,7 @@ export async function getComments(
   lastDoc?: QueryDocumentSnapshot<DocumentData>
 ): Promise<{ comments: Comment[]; lastDoc: QueryDocumentSnapshot<DocumentData> | null }> {
   const ref = collection(db, "comments");
-  const constraints: any[] = [
+  const constraints: QueryConstraint[] = [
     where("postId", "==", postId),
     orderBy("createdAt", "asc"),
     limit(COMMENTS_PER_PAGE),
@@ -95,7 +96,6 @@ export async function addComment(payload: AddCommentPayload): Promise<Comment> {
   const postRef = doc(db, "posts", postId);
   await updateDoc(postRef, { comments: increment(1) });
 
-  // Fire notification to post author (non-blocking)
   try {
     const postSnap = await getDoc(postRef);
     if (postSnap.exists()) {

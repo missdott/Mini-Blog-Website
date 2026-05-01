@@ -234,6 +234,9 @@ export default function DashboardPage() {
   const [showPostMenu, setShowPostMenu] = useState<string | null>(null);
   const [username, setUsername] = useState("");
   const [profileImage, setProfileImage] = useState("");
+  const [coverImage, setCoverImage] = useState("");
+  const [bio, setBio] = useState("");
+  const [coverUploading, setCoverUploading] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
@@ -249,6 +252,7 @@ export default function DashboardPage() {
   });
 
   const menuRef = useRef<HTMLDivElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -278,12 +282,16 @@ export default function DashboardPage() {
         const data = snap.exists() ? snap.data() : {};
         const name = data.username || localStorage.getItem(`username_${user.uid}`) || "";
         const img = data.profileImage || localStorage.getItem(`profileImage_${user.uid}`) || "";
-        setUsername(name); setProfileImage(img);
+        const cover = data.coverImage || localStorage.getItem(`coverImage_${user.uid}`) || "";
+        const userBio = data.bio || "";
+        setUsername(name); setProfileImage(img); setCoverImage(cover); setBio(userBio);
         if (name) localStorage.setItem(`username_${user.uid}`, name);
         if (img) localStorage.setItem(`profileImage_${user.uid}`, img);
+        if (cover) localStorage.setItem(`coverImage_${user.uid}`, cover);
       } catch {
         setUsername(localStorage.getItem(`username_${user.uid}`) || "");
         setProfileImage(localStorage.getItem(`profileImage_${user.uid}`) || "");
+        setCoverImage(localStorage.getItem(`coverImage_${user.uid}`) || "");
       }
     };
     const loadPosts = async () => {
@@ -314,6 +322,24 @@ export default function DashboardPage() {
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setCoverUploading(true);
+    try {
+      const { uploadToCloudinary } = await import("@/lib/imageUtils");
+      const url = await uploadToCloudinary(file);
+      setCoverImage(url);
+      localStorage.setItem(`coverImage_${user.uid}`, url);
+      const { doc: firestoreDoc, updateDoc: firestoreUpdate } = await import("firebase/firestore");
+      await firestoreUpdate(firestoreDoc(db, "users", user.uid), { coverImage: url });
+      showToast("Cover photo updated!");
+    } catch {
+      showToast("Failed to upload cover photo.");
+    } finally {
+      setCoverUploading(false);
+    }
+  };
   const handleLogout = async () => { await signOut(auth); router.push("/"); };
 
   const handleSearchNavigate = () => {
@@ -432,37 +458,69 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Profile Header */}
-      <div className="bg-white">
-        <div className="h-48 bg-[#5A90C4] relative overflow-hidden">
-          <div className="absolute -top-8 -right-8 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
-          <div className="absolute -bottom-12 -left-8 w-80 h-80 bg-[#F4A261]/20 rounded-full blur-3xl" />
+      {/* Twitter-style Profile Header */}
+      <div className="bg-white border-b border-gray-200">
+        {/* Cover photo */}
+        <div className="relative h-48 md:h-56 overflow-hidden group cursor-pointer">
+          {coverImage
+            ? <Image src={coverImage} alt="Cover" fill className="object-cover" unoptimized priority />
+            : <div className="absolute inset-0 bg-gradient-to-br from-[#2F4B7C] via-[#5A90C4] to-[#6FA8DC]">
+                <div className="absolute -top-8 -right-8 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
+                <div className="absolute -bottom-12 -left-8 w-80 h-80 bg-[#F4A261]/20 rounded-full blur-3xl" />
+              </div>
+          }
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center">
+            <button
+              onClick={() => coverInputRef.current?.click()}
+              disabled={coverUploading}
+              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 bg-black/60 hover:bg-black/80 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm"
+            >
+              {coverUploading
+                ? <><svg className="animate-spin w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Uploading...</>
+                : <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>Edit cover photo</>
+              }
+            </button>
+          </div>
+          <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} />
         </div>
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex gap-6 items-center pb-6">
-            <div className="relative z-10 -mt-14 shrink-0">
-              <div className="w-28 h-28 bg-white p-1 rounded-xl shadow-xl ring-4 ring-white relative overflow-hidden">
+
+        {/* Avatar + actions row */}
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex items-end justify-between -mt-14 md:-mt-16 pb-3">
+            <div className="relative shrink-0 z-10">
+              <div className="w-28 h-28 md:w-32 md:h-32 rounded-full ring-4 ring-white bg-white shadow-xl overflow-hidden relative">
                 {profileImage
-                  ? <Image src={profileImage} alt="Profile" fill className="rounded-lg object-cover" unoptimized />
-                  : <div className="w-full h-full bg-[#2F4B7C] rounded-lg flex items-center justify-center"><span className="text-3xl font-bold text-white">{(username || user.email || "U")[0].toUpperCase()}</span></div>
+                  ? <Image src={profileImage} alt="Profile" fill className="object-cover" unoptimized />
+                  : <div className="w-full h-full bg-[#2F4B7C] flex items-center justify-center">
+                      <span className="text-4xl font-bold text-white">{(username || user.email || "U")[0].toUpperCase()}</span>
+                    </div>
                 }
               </div>
-              <Link href="/settings" title="Edit profile" className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#6FA8DC] hover:bg-[#5A90C4] text-white rounded-full flex items-center justify-center shadow-md transition-colors">
-                <svg className="w-4 h-4" {...ip}><path {...sw2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+              <Link href="/settings" title="Edit profile picture"
+                className="absolute bottom-1 right-1 w-8 h-8 bg-[#6FA8DC] hover:bg-[#5A90C4] text-white rounded-full flex items-center justify-center shadow-md transition-colors border-2 border-white">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               </Link>
             </div>
-            <div className="pt-2 flex-1 min-w-0">
-              <div className="flex items-center gap-8 flex-wrap">
-                <h2 className="font-serif text-2xl font-bold text-[#1F2F46] leading-none py-1">{displayName}</h2>
-                <div className="flex items-center gap-6">
-                  {([["Posts", posts.length], ["Followers", followerCount], ["Following", followingCount]] as const).map(([label, val]) => (
-                    <div key={label} className="flex flex-col items-center">
-                      <span className="text-lg font-bold text-[#1F2F46]">{val}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#2F4B7C]">{label}</span>
-                    </div>
-                  ))}
+            <Link href="/settings"
+              className="mb-2 px-5 py-2 rounded-full border-2 border-[#2F4B7C] text-[#2F4B7C] text-sm font-bold hover:bg-[#2F4B7C] hover:text-white transition-all duration-200">
+              Edit Profile
+            </Link>
+          </div>
+
+          {/* Name, handle, bio, stats */}
+          <div className="pb-5 space-y-2">
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-[#1F2F46] leading-tight">{displayName}</h2>
+              <p className="text-sm text-gray-400">@{(username || user.email?.split("@")[0] || "user").toLowerCase()}</p>
+            </div>
+            {bio && <p className="text-sm text-gray-700 max-w-xl leading-relaxed">{bio}</p>}
+            <div className="flex items-center gap-5 pt-1">
+              {([[posts.length, "Posts"], [followerCount, "Followers"], [followingCount, "Following"]] as [number, string][]).map(([val, label]) => (
+                <div key={label} className="flex items-center gap-1">
+                  <span className="text-sm font-bold text-[#1F2F46]">{val}</span>
+                  <span className="text-sm text-gray-500">{label}</span>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
