@@ -12,6 +12,7 @@ import {
   serverTimestamp,
   onSnapshot,
   Unsubscribe,
+  Timestamp,                // add this
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -23,21 +24,17 @@ export interface Notification {
   id: string;
   type: NotificationType;
   message: string;
-  recipientId: string;   // user who receives the notification
-  senderId: string;      // user who triggered it
-  senderName: string;    // display name of sender
-  postId?: string;       // relevant post (for like/comment)
-  postTitle?: string;    // post title snippet
+  recipientId: string;
+  senderId: string;
+  senderName: string;
+  postId?: string;
+  postTitle?: string;
   read: boolean;
-  createdAt: any;
+  createdAt: Timestamp;     
 }
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
-/**
- * Create a like notification.
- * Skip if the liker is the post author (don't notify yourself).
- */
 export async function createLikeNotification(
   recipientId: string,
   senderId: string,
@@ -47,7 +44,6 @@ export async function createLikeNotification(
 ): Promise<void> {
   if (recipientId === senderId) return;
 
-  // Avoid duplicate like notifications for the same post
   const existing = await getDocs(
     query(
       collection(db, "notifications"),
@@ -72,9 +68,6 @@ export async function createLikeNotification(
   });
 }
 
-/**
- * Remove a like notification (when user unlikes).
- */
 export async function removeLikeNotification(
   recipientId: string,
   senderId: string,
@@ -94,9 +87,6 @@ export async function removeLikeNotification(
   await batch.commit();
 }
 
-/**
- * Create a comment notification.
- */
 export async function createCommentNotification(
   recipientId: string,
   senderId: string,
@@ -119,9 +109,6 @@ export async function createCommentNotification(
   });
 }
 
-/**
- * Create a follow notification.
- */
 export async function createFollowNotification(
   recipientId: string,
   senderId: string,
@@ -129,7 +116,6 @@ export async function createFollowNotification(
 ): Promise<void> {
   if (recipientId === senderId) return;
 
-  // Avoid duplicate follow notifications
   const existing = await getDocs(
     query(
       collection(db, "notifications"),
@@ -153,9 +139,6 @@ export async function createFollowNotification(
   });
 }
 
-/**
- * Remove a follow notification (when user unfollows).
- */
 export async function removeFollowNotification(
   recipientId: string,
   senderId: string
@@ -175,10 +158,6 @@ export async function removeFollowNotification(
 
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
-/**
- * Subscribe to real-time notifications for a user.
- * Returns an unsubscribe function.
- */
 export function subscribeToNotifications(
   userId: string,
   callback: (notifications: Notification[]) => void
@@ -201,16 +180,10 @@ export function subscribeToNotifications(
 
 // ─── Mark read ────────────────────────────────────────────────────────────────
 
-/**
- * Mark a single notification as read.
- */
 export async function markNotificationRead(notificationId: string): Promise<void> {
   await updateDoc(doc(db, "notifications", notificationId), { read: true });
 }
 
-/**
- * Mark all notifications as read for a user.
- */
 export async function markAllNotificationsRead(userId: string): Promise<void> {
   const snap = await getDocs(
     query(
