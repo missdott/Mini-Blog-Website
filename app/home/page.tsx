@@ -300,6 +300,8 @@ export default function HomePage() {
   const menuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const menuRef = useRef<HTMLDivElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const postsUnsubRef = useRef<(() => void) | undefined>(undefined);
+  const notificationsUnsubRef = useRef<(() => void) | undefined>(undefined);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -307,11 +309,22 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     let unsub: (() => void) | undefined;
+
     user.getIdToken(true)
-      .then(() => { unsub = subscribeToNotifications(user.uid, setNotifications); })
+      .then(() => {
+        if (cancelled) return;
+        unsub = subscribeToNotifications(user.uid, setNotifications);
+        notificationsUnsubRef.current = unsub;
+      })
       .catch(console.error);
-    return () => unsub?.();
+
+    return () => {
+      cancelled = true;
+      unsub?.();
+      if (notificationsUnsubRef.current === unsub) notificationsUnsubRef.current = undefined;
+    };
   }, [user]);
 
   useEffect(() => {
@@ -335,8 +348,11 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     let unsub: (() => void) | undefined;
+
     user.getIdToken(true).then(() => {
+      if (cancelled) return;
       const q = query(collection(db, "posts"), where("isPrivate", "==", false), where("isDraft", "==", false), orderBy("createdAt", "desc"));
       unsub = onSnapshot(q,
         async (snap) => {
@@ -366,10 +382,20 @@ export default function HomePage() {
           setPosts(merged);
           setLoading(false);
         },
-        (err) => { console.error("Posts listener error:", err); setLoading(false); }
+        (err) => {
+          if (err?.code === "permission-denied") return;
+          console.error("Posts listener error:", err);
+          setLoading(false);
+        }
       );
+      postsUnsubRef.current = unsub;
     }).catch((err) => { console.error("Token error:", err); setLoading(false); });
-    return () => unsub?.();
+
+    return () => {
+      cancelled = true;
+      unsub?.();
+      if (postsUnsubRef.current === unsub) postsUnsubRef.current = undefined;
+    };
   }, [user]);
 
   // ── Handlers ──
@@ -393,8 +419,14 @@ export default function HomePage() {
   };
 
   const handleLogout = async () => {
-    try { await signOut(); router.push("/"); }
-    catch (err) { console.error("Logout error:", err); }
+    try {
+      postsUnsubRef.current?.();
+      notificationsUnsubRef.current?.();
+      await signOut();
+      router.push("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   };
 
   const handleNotificationClick = (n: AppNotification) => {
