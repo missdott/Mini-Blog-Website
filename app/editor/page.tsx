@@ -4,9 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
-import { db, auth } from "@/lib/firebase";
-import { collection, addDoc, doc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { signOut } from "firebase/auth";
+import { db } from "@/lib/firebase";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TiptapLink from "@tiptap/extension-link";
@@ -41,7 +39,7 @@ const toolBtn = (active?: boolean) => `p-2 rounded hover:bg-gray-200 transition$
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function EditorPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
 
   const [title, setTitle] = useState("");
@@ -146,7 +144,7 @@ export default function EditorPage() {
     setImages((prev) => { const a = [...prev]; const [m] = a.splice(from, 1); a.splice(to, 0, m); return a; });
   };
 
-  const handleLogout = async () => { await signOut(auth); router.push("/"); };
+  const handleLogout = async () => { await signOut(); router.push("/"); };
 
   const isAnyCompressing = images.some((img) => img.isCompressing);
 

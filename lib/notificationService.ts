@@ -12,7 +12,7 @@ import {
   serverTimestamp,
   onSnapshot,
   Unsubscribe,
-  Timestamp,                // add this
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -30,7 +30,7 @@ export interface Notification {
   postId?: string;
   postTitle?: string;
   read: boolean;
-  createdAt: Timestamp;     
+  createdAt: Timestamp;
 }
 
 // ─── Create ───────────────────────────────────────────────────────────────────
@@ -169,13 +169,24 @@ export function subscribeToNotifications(
     limit(30)
   );
 
-  return onSnapshot(q, (snap) => {
-    const notifications = snap.docs.map((d) => ({
-      id: d.id,
-      ...d.data(),
-    })) as Notification[];
-    callback(notifications);
-  });
+  return onSnapshot(
+    q,
+    (snap) => {
+      const notifications = snap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      })) as Notification[];
+      callback(notifications);
+    },
+    (error) => {
+      // Suppress permission-denied — this fires during logout when the
+      // listener is still active after auth is cleared. All other errors
+      // are still logged so real problems aren't silently swallowed.
+      if (error.code !== "permission-denied") {
+        console.error("Notification listener error:", error);
+      }
+    }
+  );
 }
 
 // ─── Mark read ────────────────────────────────────────────────────────────────

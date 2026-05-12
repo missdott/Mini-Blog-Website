@@ -4,8 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { getBookmarkedPosts, toggleBookmark } from "@/lib/bookmarkService";
 import Image from "next/image";
 
@@ -33,7 +31,7 @@ const menuItem = "flex items-center px-5 py-3 text-sm font-bold text-[#2F4B7C] h
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function BookmarksPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
 
   const [posts, setPosts] = useState<Post[]>([]);
@@ -91,7 +89,7 @@ export default function BookmarksPage() {
     }
   };
 
-  const handleLogout = async () => { await signOut(auth); router.push("/"); };
+  const handleLogout = async () => { await signOut(); router.push("/"); };
 
   const handleSearchNavigate = () => {
     if (searchQuery.trim()) router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);

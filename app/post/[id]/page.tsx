@@ -5,10 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/lib/AuthContext";
-import { db, auth } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
-import { CommentsController } from "@/components/Comments";
-import { signOut } from "firebase/auth";
+import { db } from "@/lib/firebase";
 
 // ─── Types & Helpers ──────────────────────────────────────────────────────────
 
@@ -76,7 +73,7 @@ function ImageGallery({ images }: { images: string[] }) {
 
 export default function PostPage() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const router = useRouter();
 
   const [post, setPost] = useState<Post | null>(null);
@@ -132,7 +129,7 @@ export default function PostPage() {
     router.push("/editor");
   };
 
-  const handleLogout = async () => { try { await signOut(auth); router.push("/"); } catch (e) { console.error("Logout error:", e); } };
+  const handleLogout = async () => { try { await signOut(); router.push("/"); } catch (e) { console.error("Logout error:", e); } };
   const handleSearchNavigate = () => { if (searchQuery.trim()) router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`); };
 
   // ── Early returns ──

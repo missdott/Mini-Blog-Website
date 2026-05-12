@@ -1,8 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import { signOut } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { collection, query, where, getDocs, deleteDoc, doc, updateDoc, orderBy, Timestamp, getDoc, arrayUnion, arrayRemove } from "firebase/firestore";
@@ -227,7 +226,7 @@ function GalleryGrid({ posts, onOpenLightbox }: { posts: BlogPost[]; onOpenLight
 // ─── DashboardPage ────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const router = useRouter();
 
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -340,7 +339,7 @@ export default function DashboardPage() {
       setCoverUploading(false);
     }
   };
-  const handleLogout = async () => { await signOut(auth); router.push("/"); };
+  const handleLogout = async () => { await signOut(); router.push("/"); };
 
   const handleSearchNavigate = () => {
     if (searchQuery.trim()) router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);

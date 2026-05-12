@@ -2,11 +2,11 @@
 
 import { useAdminCheck } from "@/lib/useAdminCheck";
 import { useEffect, useState, type ReactNode } from "react";
-import { db, auth } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, deleteDoc, updateDoc, Timestamp } from "firebase/firestore";
-import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { User as FirebaseUser } from "firebase/auth";
+import { useAuth } from "@/lib/AuthContext";
 import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement,
   PointElement, Title, Tooltip, Legend, ArcElement, Filler,
@@ -90,11 +90,11 @@ const CHART_OPTIONS = {
 
 export default function AdminDashboard() {
   const { isAdmin, checking } = useAdminCheck();
+  const { user, signOut } = useAuth();
   const [allPosts, setAllPosts]         = useState<Post[]>([]);
   const [allUsers, setAllUsers]         = useState<User[]>([]);
   const [loading, setLoading]           = useState(true);
   const [activeView, setActiveView]     = useState<ActiveView>("dashboard");
-  const [user, setUser]                 = useState<FirebaseUser | null>(null);
   const [searchQuery, setSearchQuery]   = useState("");
   const [postFilter, setPostFilter]     = useState<PostFilter>("all");
   const [postSort, setPostSort]         = useState<PostSort>("newest");
@@ -102,8 +102,6 @@ export default function AdminDashboard() {
   const [notifications, setNotifications] = useState<string[]>([]);
   const [reportCount, setReportCount]   = useState(0);
   const router = useRouter();
-
-  useEffect(() => auth.onAuthStateChanged(setUser), []);
 
   useEffect(() => { if (isAdmin) loadAdminData(); }, [isAdmin]);
 
@@ -161,7 +159,7 @@ export default function AdminDashboard() {
     "Admin role removed!", "Failed to remove admin role."
   );
 
-  const handleLogout = () => signOut(auth).then(() => router.push("/")).catch(console.error);
+  const handleLogout = () => signOut().then(() => router.push("/")).catch(console.error);
 
   // ── Chart data ─────────────────────────────────────────────────────────────
 

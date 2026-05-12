@@ -3,9 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/AuthContext";
-import { signOut } from "firebase/auth";
 import { collection, query, orderBy, where, onSnapshot, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { toggleFollow, getFollowing } from "@/lib/followService";
 import { subscribeToNotifications, markNotificationRead, markAllNotificationsRead, createLikeNotification, removeLikeNotification, Notification as AppNotification } from "@/lib/notificationService";
@@ -285,7 +284,7 @@ function GalleryGrid({ posts, user, onOpenLightbox }: {
 // ─── HomePage ─────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -394,7 +393,7 @@ export default function HomePage() {
   };
 
   const handleLogout = async () => {
-    try { await signOut(auth); router.push("/"); }
+    try { await signOut(); router.push("/"); }
     catch (err) { console.error("Logout error:", err); }
   };
 
