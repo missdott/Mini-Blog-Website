@@ -463,7 +463,7 @@ export default function DashboardPage() {
         <div className="relative h-48 md:h-56 overflow-hidden group cursor-pointer">
           {coverImage
             ? <Image src={coverImage} alt="Cover" fill className="object-cover" unoptimized priority />
-            : <div className="absolute inset-0 bg-gradient-to-br from-[#2F4B7C] via-[#5A90C4] to-[#6FA8DC]">
+            : <div className="absolute inset-0 bg-linear-to-br from-[#2F4B7C] via-[#5A90C4] to-[#6FA8DC]">
                 <div className="absolute -top-8 -right-8 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
                 <div className="absolute -bottom-12 -left-8 w-80 h-80 bg-[#F4A261]/20 rounded-full blur-3xl" />
               </div>
