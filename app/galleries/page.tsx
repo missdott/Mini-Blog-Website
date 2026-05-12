@@ -3,9 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/AuthContext";
-import { signOut } from "firebase/auth";
 import { collection, query, where, getDocs, orderBy, Timestamp } from "firebase/firestore";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -215,7 +214,7 @@ function EmptyState({ icon, title, desc }: { icon: string; title: string; desc: 
 // ─── GalleriesPage ────────────────────────────────────────────────────────────
 
 export default function GalleriesPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
 
   const [posts, setPosts] = useState<Post[]>([]);
@@ -255,7 +254,7 @@ export default function GalleriesPage() {
     })();
   }, [user]);
 
-  const handleLogout = async () => { try { await signOut(auth); router.push("/"); } catch (e) { console.error("Logout error:", e); } };
+  const handleLogout = async () => { try { await signOut(); router.push("/"); } catch (e) { console.error("Logout error:", e); } };
   const handleSearchNavigate = () => { if (searchQuery.trim()) router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`); };
 
   if (authLoading || loading) return (

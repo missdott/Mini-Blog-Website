@@ -4,8 +4,7 @@ import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
-import { signOut } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { searchPosts, SearchPost } from "@/lib/searchService";
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 
@@ -54,7 +53,7 @@ const Spinner = () => (
 // ─── SearchPageContent ────────────────────────────────────────────────────────
 
 function SearchPageContent() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -119,7 +118,7 @@ function SearchPageContent() {
 
   const handleSeeProfile = (e: React.MouseEvent, userId: string) => { e.stopPropagation(); router.push(`/profile/${userId}`); setOpenMenuId(null); };
   const handleReport = (e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("Are you sure you want to report this post?")) { alert("Post reported. Thank you for helping keep our community safe."); setOpenMenuId(null); } };
-  const handleLogout = async () => { await signOut(auth); router.push("/"); };
+  const handleLogout = async () => { await signOut(); router.push("/"); };
 
   // ── Render ──
 

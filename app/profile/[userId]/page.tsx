@@ -1,8 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import { signOut } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useRouter, useParams, usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { collection, query, where, getDocs, orderBy, Timestamp, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from "firebase/firestore";
@@ -35,7 +34,7 @@ const getPostImages = (post: BlogPost) => post.featuredImages?.length ? post.fea
 // ─── ProfilePage ──────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
@@ -108,7 +107,7 @@ export default function ProfilePage() {
       .then((snap) => setPosts(snap.docs.map((d) => ({ id: d.id, ...d.data() })) as BlogPost[]));
   };
 
-  const handleLogout = async () => { await signOut(auth); router.push("/"); };
+  const handleLogout = async () => { await signOut(); router.push("/"); };
 
   const filteredPosts = posts.filter((p) => {
     if (!debouncedQuery) return true;

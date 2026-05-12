@@ -4,9 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useAuth } from "@/lib/AuthContext";
-import { signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import { db } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
 import Modal from "@/lib/Modal";
@@ -38,7 +37,7 @@ const alert = (title: string, message: string, onConfirm?: () => void) =>
 // ─── SettingsPage ─────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -161,7 +160,7 @@ export default function SettingsPage() {
     }));
   };
 
-  const handleLogout = async () => { await signOut(auth); router.push("/"); };
+  const handleLogout = async () => { await signOut(); router.push("/"); };
   const handleSearchNavigate = () => { if (searchQuery.trim()) router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`); };
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
