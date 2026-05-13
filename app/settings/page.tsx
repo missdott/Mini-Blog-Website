@@ -8,6 +8,7 @@ import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 
 import { db } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
+import { useAuth } from "@/lib/AuthContext";
 import Modal from "@/lib/Modal";
 import { compressProfileImage, formatFileSize, uploadToCloudinary } from "@/lib/imageUtils";
 

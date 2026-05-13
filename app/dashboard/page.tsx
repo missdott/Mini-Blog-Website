@@ -18,7 +18,7 @@ interface BlogPost {
   id: string; title?: string; content: string; featuredImage?: string;
   galleryImages?: string[]; categories?: string[]; tags?: string[];
   isPrivate: boolean; isDraft: boolean; createdAt: Timestamp;
-  userId: string; userEmail: string; username?: string;
+  userId: string; userEmail: string; username?: string; profileImage?: string;
   likes?: string[]; comments?: number;
 }
 
@@ -95,7 +95,11 @@ function Lightbox({ post, onClose }: { post: BlogPost; onClose: () => void }) {
           <div className="w-[30%] h-full bg-white flex flex-col overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-[#6FA8DC] flex items-center justify-center text-white text-xs font-bold">{getInitial(post)}</div>
+                {post.profileImage ? (
+                  <Image src={post.profileImage} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover" />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-[#6FA8DC] flex items-center justify-center text-white text-xs font-bold">{getInitial(post)}</div>
+                )}
                 <span className="text-sm font-semibold text-[#2F4B7C]">{getDisplayName(post)}</span>
               </div>
               <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
@@ -212,8 +216,16 @@ function GalleryGrid({ posts, onOpenLightbox }: { posts: BlogPost[]; onOpenLight
           {textOnly.map((post) => (
             <Link key={post.id} href={`/post/${post.id}`}>
               <div className="bg-white rounded-xl border border-gray-100 px-5 py-4 hover:shadow-md transition cursor-pointer">
+                <div className="flex items-center gap-3 mb-2">
+                  {post.profileImage ? (
+                    <Image src={post.profileImage} alt="" width={24} height={24} className="w-6 h-6 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-[#6FA8DC] flex items-center justify-center text-white text-xs font-bold">{getInitial(post)}</div>
+                  )}
+                  <span className="text-sm font-semibold text-[#2F4B7C]">{getDisplayName(post)}</span>
+                  <span className="text-xs text-gray-400">• {post.createdAt?.toDate().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                </div>
                 <p className="font-semibold text-[#2F4B7C] text-sm">{post.title || "Untitled"}</p>
-                <p className="text-xs text-gray-400 mt-1">{post.createdAt?.toDate().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
               </div>
             </Link>
           ))}
@@ -557,7 +569,13 @@ export default function DashboardPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <button onClick={() => router.push(`/profile/${post.userId}`)} className="w-9 h-9 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white text-xs font-bold hover:opacity-90 transition">{getInitial(post)}</button>
+                    <button onClick={() => router.push(`/profile/${post.userId}`)} className="w-9 h-9 rounded-full overflow-hidden hover:opacity-90 transition">
+                      {post.profileImage ? (
+                        <Image src={post.profileImage} alt="" width={36} height={36} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-[#2F4B7C] flex items-center justify-center text-white text-xs font-bold">{getInitial(post)}</div>
+                      )}
+                    </button>
                     <div className="flex items-center gap-2">
                       <button onClick={() => router.push(`/profile/${post.userId}`)} className="text-sm font-semibold text-[#1F2F46] hover:underline">{getDisplayName(post)}</button>
                       <svg className="w-3 h-3 text-[#2F4B7C]" fill="currentColor" viewBox="0 0 20 20">
