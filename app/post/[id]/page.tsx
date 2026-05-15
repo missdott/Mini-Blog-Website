@@ -6,6 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/lib/AuthContext";
 import { db } from "@/lib/firebase";
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { CommentsController } from "@/components/Comments";
 
 // ─── Types & Helpers ──────────────────────────────────────────────────────────
 

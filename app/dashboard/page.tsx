@@ -604,12 +604,12 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {(post.featuredImage || post.galleryImages?.length) && <CardCarousel images={getPostImages(post)} title={post.title} />}
+                {(post.featuredImage || (post.galleryImages?.length ?? 0) > 0) && <CardCarousel images={getPostImages(post)} title={post.title} />}
 
                 {/* Content */}
                 <div className="px-4 py-3">
                   {post.title && <p className="font-semibold text-[#1F2F46] mb-1">{post.title}</p>}
-                  <p className="text-gray-800 text-sm leading-relaxed line-clamp-3">{stripHtml(post.content).substring(0, 200)}{post.content.length > 200 ? "..." : ""}</p>
+                  {(() => { const text = stripHtml(post.content); return text && <p className="text-gray-800 text-sm leading-relaxed line-clamp-3">{text.substring(0, 200)}{text.length > 200 ? "..." : ""}</p>; })()}
                   {post.tags && post.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {post.tags.map((tag, i) => <span key={i} className="text-xs text-[#6FA8DC] hover:underline cursor-pointer font-medium">#{tag}</span>)}

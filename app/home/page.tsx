@@ -609,10 +609,10 @@ export default function HomePage() {
                       </div>
                     </div>
                     {post.title && <h3 className="text-lg font-bold text-gray-900 mb-2">{post.title}</h3>}
-                    {(post.featuredImage || post.galleryImages?.length) && (
+                    {(post.featuredImage || (post.galleryImages?.length ?? 0) > 0) && (
                       <CardCarousel images={getPostImages(post)} title={post.title} />
                     )}
-                    <div className="text-gray-700 text-sm prose prose-sm max-w-none mb-3" dangerouslySetInnerHTML={{ __html: post.content.substring(0, 300) + (post.content.length > 300 ? "..." : "") }} />
+                    {post.content && (() => { const stripped = post.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(); return stripped && <div className="text-gray-700 text-sm prose prose-sm max-w-none mb-3" dangerouslySetInnerHTML={{ __html: post.content.substring(0, 300) + (stripped.length > 300 ? "..." : "") }} />; })()}
                     {post.tags && post.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {post.tags.map((tag, i) => <span key={i} className="text-xs text-[#6FA8DC] font-medium">#{tag}</span>)}
