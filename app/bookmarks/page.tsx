@@ -62,7 +62,7 @@ export default function BookmarksPage() {
       setLoading(true);
       try {
         const fetched = await getBookmarkedPosts(user.uid);
-        setPosts(fetched as Post[]);
+        setPosts(fetched as unknown as Post[]);
         setBookmarkedIds(new Set(fetched.map((p: { id: string }) => p.id)));
       } catch (err) { console.error("Error loading bookmarks:", err); }
       finally { setLoading(false); }

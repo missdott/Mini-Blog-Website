@@ -151,9 +151,15 @@ export default function EditorPage() {
 
   const handlePublish = async (isDraft = false) => {
     if (!user || !editor) return;
-    if (!title.trim()) { setError("Please enter a title"); return; }
     const content = editor.getHTML();
-    if (!content || content === "<p></p>") { setError("Please write some content"); return; }
+    const hasTitle = title.trim().length > 0;
+    const hasContent = content && content !== "<p></p>";
+    const hasImages = images.length > 0;
+
+    if (!hasTitle && !hasContent && !hasImages) {
+      setError("Please add a title, some content, or an image to publish.");
+      return;
+    }
     if (isAnyCompressing) { setError("Please wait for images to finish optimizing."); return; }
 
     pendingPublishRef.current = { isDraft };

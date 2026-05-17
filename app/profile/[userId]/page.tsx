@@ -44,8 +44,9 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const [showPostMenu, setShowPostMenu] = useState<string | null>(null);
-  const profileUsername = localStorage.getItem(`username_${profileUserId}`) || "";
-  const profileImage = localStorage.getItem(`profileImage_${profileUserId}`) || "";
+  const [profileUsername, setProfileUsername] = useState("");
+  const [profileImage, setProfileImage] = useState("");
+  const [coverImage, setCoverImage] = useState("");
   const [followedUsers, setFollowedUsers] = useState<Set<string>>(new Set());
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
@@ -74,6 +75,19 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user || !profileUserId) return;
+
+    // Fetch profile user data from Firestore
+    getDoc(doc(db, "users", profileUserId)).then((snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        const name = data.username || "";
+        const img = data.profileImage || "";
+        const cover = data.coverImage || "";
+        if (name) setProfileUsername(name);
+        if (img) setProfileImage(img);
+        if (cover) setCoverImage(cover);
+      }
+    }).catch(console.error);
 
     getDocs(query(collection(db, "posts"), where("userId", "==", profileUserId), where("isPrivate", "==", false), where("isDraft", "==", false), orderBy("createdAt", "desc")))
       .then((snap) => setPosts(snap.docs.map((d) => ({ id: d.id, ...d.data() })) as BlogPost[]))
@@ -170,36 +184,53 @@ export default function ProfilePage() {
       </header>
 
       {/* Profile Header */}
-      <div className="bg-white">
-        <div className="h-48 bg-[#2F4B7C] relative overflow-hidden">
-          <div className="absolute -top-8 -right-8 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
-          <div className="absolute -bottom-12 -left-8 w-80 h-80 bg-[#F4A261]/20 rounded-full blur-3xl" />
-        </div>
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex gap-6 items-center pb-6">
-            <div className="relative z-10 -mt-14 w-28 h-28 bg-white p-1 rounded-xl shadow-xl shrink-0 ring-4 ring-white overflow-hidden">
-              {profileImage
-                ? <Image src={profileImage} alt="Profile" fill className="object-cover rounded-lg" unoptimized />
-                : <div className="w-full h-full bg-[#2F4B7C] rounded-lg flex items-center justify-center"><span className="text-3xl font-bold text-white">{displayName[0]?.toUpperCase()}</span></div>
-              }
+      <div className="bg-white border-b border-gray-200">
+        {/* Cover photo */}
+        <div className="relative h-48 md:h-56 overflow-hidden">
+          {coverImage
+            ? <Image src={coverImage} alt="" fill className="object-cover" unoptimized priority />
+            : <div className="absolute inset-0 bg-linear-to-br from-[#2F4B7C] via-[#5A90C4] to-[#6FA8DC]">
+              <div className="absolute -top-8 -right-8 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
+              <div className="absolute -bottom-12 -left-8 w-80 h-80 bg-[#F4A261]/20 rounded-full blur-3xl" />
             </div>
-            <div className="pt-2 flex-1 min-w-0">
-              <div className="flex items-center gap-8 flex-wrap">
-                <h2 className="font-serif text-2xl font-bold text-[#1F2F46] leading-none py-1">{displayName}</h2>
-                <div className="flex items-center gap-6">
-                  {([["Posts", posts.length], ["Followers", followerCount], ["Following", followingCount]] as const).map(([label, val]) => (
-                    <div key={label} className="flex flex-col items-center">
-                      <span className="text-lg font-bold text-[#1F2F46]">{val}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#2F4B7C]">{label}</span>
-                    </div>
-                  ))}
-                </div>
-                {!isOwnProfile && (
-                  <button onClick={() => handleFollow(profileUserId)} className={`ml-auto inline-flex items-center gap-2 text-base font-bold px-8 py-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 ${followedUsers.has(profileUserId) ? "bg-gray-100 text-[#2F4B7C] border border-[#2F4B7C]/20 hover:bg-gray-200" : "bg-[#6FA8DC] text-white hover:bg-[#5A90C4]"}`}>
-                    {followedUsers.has(profileUserId) ? "Unfollow" : "Follow"}
-                  </button>
-                )}
+          }
+        </div>
+
+        {/* Avatar + actions row */}
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex items-end justify-between -mt-14 md:-mt-16 pb-3">
+            <div className="relative shrink-0 z-10">
+              <div className="w-28 h-28 md:w-32 md:h-32 rounded-full ring-4 ring-white bg-white shadow-xl overflow-hidden relative">
+                {profileImage
+                  ? <Image src={profileImage} alt="" fill className="object-cover" unoptimized onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  : <div className="w-full h-full bg-[#2F4B7C] flex items-center justify-center">
+                    <span className="text-4xl font-bold text-white">{displayName[0]?.toUpperCase()}</span>
+                  </div>
+                }
               </div>
+            </div>
+            {!isOwnProfile && (
+              <button
+                onClick={() => handleFollow(profileUserId)}
+                className={`mb-2 inline-flex items-center gap-2 text-sm font-bold px-6 py-2 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${followedUsers.has(profileUserId) ? "bg-gray-100 text-[#2F4B7C] border border-[#2F4B7C]/20 hover:bg-gray-200" : "bg-[#6FA8DC] text-white hover:bg-[#5A90C4]"}`}>
+                {followedUsers.has(profileUserId) ? "Unfollow" : "Follow"}
+              </button>
+            )}
+          </div>
+
+          {/* Name, handle, stats */}
+          <div className="pb-5 space-y-2">
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-[#1F2F46] leading-tight">{displayName}</h2>
+              <p className="text-sm text-gray-400">@{(profileUsername || posts[0]?.userEmail?.split("@")[0] || "user").toLowerCase()}</p>
+            </div>
+            <div className="flex items-center gap-5 pt-1">
+              {([[posts.length, "Posts"], [followerCount, "Followers"], [followingCount, "Following"]] as [number, string][]).map(([val, label]) => (
+                <div key={label} className="flex items-center gap-1">
+                  <span className="text-sm font-bold text-[#1F2F46]">{val}</span>
+                  <span className="text-sm text-gray-500">{label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -221,8 +252,11 @@ export default function ProfilePage() {
                   {/* Header */}
                   <div className="flex items-center justify-between px-4 py-3">
                     <Link href={`/profile/${post.userId}`} className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white text-xs font-bold">
-                        {(post.username || post.userEmail || "U")[0].toUpperCase()}
+                      <div className="w-8 h-8 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white text-xs font-bold overflow-hidden relative shrink-0">
+                        {profileImage
+                          ? <Image src={profileImage} alt="" fill className="object-cover" unoptimized onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          : (post.username || post.userEmail || "U")[0].toUpperCase()
+                        }
                       </div>
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-semibold text-gray-900">{post.username || `@${post.userEmail?.split("@")[0]}`}</p>

@@ -11,7 +11,7 @@ import { useIsAdmin } from "@/lib/useIsAdmin";
 interface CommentsProps { postId: string; authorId: string; }
 
 interface FirebaseUser {
-  uid: string; email: string | null; displayName: string | null;
+  uid: string; email: string | null; displayName: string | null; photoURL?: string | null;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -34,6 +34,19 @@ function generateAvatarColor(userId: string): string {
 const userInitial = (user: FirebaseUser) =>
   user.displayName?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? "?";
 
+function Avatar({ userId, username, userEmail, userProfileImage, className = "w-8 h-8" }: { userId: string, username?: string, userEmail?: string | null, userProfileImage?: string | null, className?: string }) {
+  if (userProfileImage) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={userProfileImage} alt="" className={`${className} rounded-full object-cover`} />;
+  }
+  const initial = username?.[0]?.toUpperCase() ?? userEmail?.[0]?.toUpperCase() ?? "?";
+  return (
+    <div className={`${className} rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0`} style={{ background: generateAvatarColor(userId) }}>
+      {initial}
+    </div>
+  );
+}
+
 // ─── Shared sub-components (declared at module level) ─────────────────────────
 
 function CommentInput({ user, error, newComment, setNewComment, onSubmit, submitting, className }: {
@@ -47,9 +60,7 @@ function CommentInput({ user, error, newComment, setNewComment, onSubmit, submit
         <div>
           {error && <p className="mb-3 text-xs text-red-600">{error}</p>}
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0" style={{ background: generateAvatarColor(user.uid) }}>
-              {userInitial(user)}
-            </div>
+            <Avatar userId={user.uid} username={user.displayName ?? ""} userEmail={user.email} userProfileImage={typeof window !== 'undefined' ? (localStorage.getItem(`profileImage_${user.uid}`) || user.photoURL) : user.photoURL} className="w-8 h-8 shrink-0" />
             <div className="flex-1 flex gap-2">
               <input type="text" className="flex-1 text-sm bg-gray-100 rounded-full px-4 py-2 focus:outline-none border border-gray-200" placeholder="Add a comment…" value={newComment} onChange={(e) => setNewComment(e.target.value)} maxLength={1000} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSubmit(); } }} />
               <button onClick={onSubmit} disabled={submitting || !newComment.trim()} className="px-4 py-2 text-sm font-medium rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer">
@@ -113,9 +124,7 @@ function CommentPreview({ comment, currentUserId, isAdmin, postAuthorId, onLike,
   return (
     <div className="py-3 group" onMouseEnter={() => setShowActions(true)} onMouseLeave={() => setShowActions(false)}>
       <div className="flex gap-3">
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0 mt-0.5" style={{ background: generateAvatarColor(comment.userId) }}>
-          {comment.username?.[0]?.toUpperCase() ?? "?"}
-        </div>
+        <Avatar userId={comment.userId} username={comment.username} userProfileImage={comment.userProfileImage} className="w-8 h-8 shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2">
             <span className="text-sm font-semibold text-gray-900">{comment.username}</span>
@@ -172,9 +181,7 @@ function CommentItemFull({ comment, currentUserId, isAdmin, postAuthorId, onLike
   return (
     <div className="py-4 border-b border-gray-100 last:border-b-0">
       <div className="flex gap-3">
-        <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0" style={{ background: generateAvatarColor(comment.userId) }}>
-          {comment.username?.[0]?.toUpperCase() ?? "?"}
-        </div>
+        <Avatar userId={comment.userId} username={comment.username} userProfileImage={comment.userProfileImage} className="w-9 h-9 shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm font-semibold text-gray-900">{comment.username}</span>
@@ -304,7 +311,7 @@ export function CommentsSidebar({ authorId, comments, user, isAdmin, loading, ha
           <div>
             {error && <p className="mb-2 text-xs text-red-600">{error}</p>}
             <div className="flex gap-2 items-center">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0" style={{ background: generateAvatarColor(user.uid) }}>{userInitial(user)}</div>
+              <Avatar userId={user.uid} username={user.displayName ?? ""} userEmail={user.email} userProfileImage={typeof window !== 'undefined' ? (localStorage.getItem(`profileImage_${user.uid}`) || user.photoURL) : user.photoURL} className="w-8 h-8 shrink-0" />
               <input type="text" className="flex-1 text-sm bg-gray-50 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#6FA8DC] border border-gray-200" placeholder="Add a comment…" value={newComment} onChange={(e) => setNewComment(e.target.value)} maxLength={1000} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSubmit(); } }} />
               <button onClick={onSubmit} disabled={submitting || !newComment.trim()} className="px-4 py-2 text-sm font-semibold rounded-full bg-[#6FA8DC] hover:bg-[#5A90C4] text-white transition-all duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed shrink-0 hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer">{submitting ? "…" : "Post"}</button>
             </div>
@@ -357,7 +364,8 @@ function useCommentsState(postId: string) {
     if (!user || !newComment.trim()) return;
     setSubmitting(true); setError(null);
     try {
-      const comment = await addComment({ postId, userId: user.uid, username: user.displayName ?? user.email ?? "Anonymous", userEmail: user.email ?? "", content: newComment.trim() });
+      const profileImage = typeof window !== 'undefined' ? (localStorage.getItem(`profileImage_${user.uid}`) || user.photoURL) : user.photoURL;
+      const comment = await addComment({ postId, userId: user.uid, username: user.displayName ?? user.email ?? "Anonymous", userEmail: user.email ?? "", userProfileImage: profileImage || "", content: newComment.trim() });
       setComments((prev) => prev.some((c) => c.id === comment.id) ? prev : [...prev, comment]);
       setNewComment("");
     } catch (e) { setError((e as Error).message ?? "Failed to post comment."); }
@@ -416,7 +424,7 @@ export default function Comments({ postId, authorId }: CommentsProps) {
       </div>
       {s.user && !s.modalOpen && (
         <div className="flex gap-3 pt-4 border-t border-gray-100">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0 mt-0.5" style={{ background: generateAvatarColor(s.user.uid) }}>{userInitial(s.user)}</div>
+          <Avatar userId={s.user.uid} username={s.user.displayName ?? ""} userEmail={s.user.email} userProfileImage={typeof window !== 'undefined' ? (localStorage.getItem(`profileImage_${s.user.uid}`) || s.user.photoURL) : s.user.photoURL} className="w-8 h-8 shrink-0 mt-0.5" />
           <input type="text" className="flex-1 text-sm bg-gray-100 rounded-full px-4 py-2 focus:outline-none border border-gray-200" placeholder="Add a comment…" value={s.newComment} onChange={(e) => s.setNewComment(e.target.value)} maxLength={1000} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); s.handleSubmit(); } }} />
         </div>
       )}
@@ -461,7 +469,7 @@ export function CommentsController({ postId, authorId }: CommentsProps) {
         </div>
         {s.user && !s.modalOpen && (
           <div className="flex gap-3 pt-4 border-t border-gray-100">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0 mt-0.5" style={{ background: generateAvatarColor(s.user.uid) }}>{userInitial(s.user)}</div>
+            <Avatar userId={s.user.uid} username={s.user.displayName ?? ""} userEmail={s.user.email} userProfileImage={typeof window !== 'undefined' ? (localStorage.getItem(`profileImage_${s.user.uid}`) || s.user.photoURL) : s.user.photoURL} className="w-8 h-8 shrink-0 mt-0.5" />
             <input type="text" className="flex-1 text-sm bg-gray-100 rounded-full px-4 py-2 focus:outline-none border border-gray-200" placeholder="Add a comment…" value={s.newComment} onChange={(e) => s.setNewComment(e.target.value)} maxLength={1000} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); s.handleSubmit(); } }} />
           </div>
         )}
