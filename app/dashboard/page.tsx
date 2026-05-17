@@ -501,11 +501,13 @@ export default function DashboardPage() {
             <div className="relative shrink-0 z-10">
               <div className="w-28 h-28 md:w-32 md:h-32 rounded-full ring-4 ring-white bg-white shadow-xl overflow-hidden relative">
                 {profileImage
-                  ? <Image src={profileImage} alt="Profile" fill className="object-cover" unoptimized />
-                  : <div className="w-full h-full bg-[#2F4B7C] flex items-center justify-center">
-                      <span className="text-4xl font-bold text-white">{(username || user.email || "U")[0].toUpperCase()}</span>
-                    </div>
-                }
+                  ? <Image src={profileImage} alt="" fill className="object-cover" unoptimized onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  : null}
+                {!profileImage && (
+                  <div className="w-full h-full bg-[#2F4B7C] flex items-center justify-center">
+                    <span className="text-4xl font-bold text-white">{(username || user.email || "U")[0].toUpperCase()}</span>
+                  </div>
+                )}
               </div>
               <Link href="/settings" title="Edit profile picture"
                 className="absolute bottom-1 right-1 w-8 h-8 bg-[#6FA8DC] hover:bg-[#5A90C4] text-white rounded-full flex items-center justify-center shadow-md transition-colors border-2 border-white">
