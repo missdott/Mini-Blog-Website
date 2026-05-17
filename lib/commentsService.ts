@@ -28,6 +28,7 @@ export interface Comment {
   userId: string;
   username: string;
   userEmail: string;
+  userProfileImage?: string;
   content: string;
   likes: string[];
   isDeleted: boolean;
@@ -40,6 +41,7 @@ export interface AddCommentPayload {
   userId: string;
   username: string;
   userEmail: string;
+  userProfileImage?: string;
   content: string;
 }
 
@@ -53,6 +55,7 @@ function toComment(docSnap: QueryDocumentSnapshot<DocumentData>): Comment {
     userId: data.userId,
     username: data.username,
     userEmail: data.userEmail,
+    userProfileImage: data.userProfileImage,
     content: data.content,
     likes: data.likes ?? [],
     isDeleted: data.isDeleted ?? false,
@@ -73,7 +76,29 @@ export async function getComments(
   ];
   if (lastDoc) constraints.push(startAfter(lastDoc));
   const snap = await getDocs(query(ref, ...constraints));
-  const comments = snap.docs.map(toComment);
+  let comments = snap.docs.map(toComment);
+
+  // Fetch updated user profile images
+  const userIds = [...new Set(comments.map((c) => c.userId))];
+  const profileMap: Record<string, string> = {};
+  await Promise.all(
+    userIds.map(async (uid) => {
+      try {
+        const userSnap = await getDoc(doc(db, "users", uid));
+        if (userSnap.exists()) {
+          profileMap[uid] = userSnap.data().profileImage || "";
+        }
+      } catch {
+        // skip silently
+      }
+    })
+  );
+
+  comments = comments.map((c) => ({
+    ...c,
+    userProfileImage: profileMap[c.userId] || c.userProfileImage || "",
+  }));
+
   const newLastDoc = snap.docs.length === COMMENTS_PER_PAGE
     ? snap.docs[snap.docs.length - 1]
     : null;
@@ -81,12 +106,13 @@ export async function getComments(
 }
 
 export async function addComment(payload: AddCommentPayload): Promise<Comment> {
-  const { postId, userId, username, userEmail, content } = payload;
+  const { postId, userId, username, userEmail, userProfileImage, content } = payload;
   if (!content.trim()) throw new Error("Comment cannot be empty.");
   if (content.trim().length > 1000) throw new Error("Comment is too long (max 1000 chars).");
 
   const commentRef = await addDoc(collection(db, "comments"), {
     postId, userId, username, userEmail,
+    userProfileImage: userProfileImage || "",
     content: content.trim(),
     likes: [],
     isDeleted: false,
@@ -115,6 +141,7 @@ export async function addComment(payload: AddCommentPayload): Promise<Comment> {
   return {
     id: commentRef.id,
     postId, userId, username, userEmail,
+    userProfileImage: userProfileImage || "",
     content: content.trim(),
     likes: [],
     isDeleted: false,

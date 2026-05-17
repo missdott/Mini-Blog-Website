@@ -14,6 +14,7 @@ import { CommentsController } from "@/components/Comments";
 interface Post {
   id: string; title: string; content: string; username: string;
   userEmail: string; userId: string; featuredImage?: string;
+  profileImage?: string;
   galleryImages?: string[]; categories: string[]; tags: string[];
   likes: string[]; comments: number; isPrivate: boolean; isDraft: boolean;
   createdAt: { toDate: () => Date }; updatedAt?: { toDate: () => Date };
@@ -96,7 +97,15 @@ export default function PostPage() {
         const data = snap.data() as Omit<Post, "id">;
         const isOwner = user?.uid === data.userId;
         if ((data.isDraft || data.isPrivate) && !isOwner) { setNotFound(true); return; }
-        setPost({ id: snap.id, ...data });
+        let profileImage = "";
+        try {
+          const userSnap = await getDoc(doc(db, "users", data.userId));
+          if (userSnap.exists()) {
+            profileImage = userSnap.data().profileImage || "";
+          }
+        } catch { /* skip silently */ }
+        
+        setPost({ id: snap.id, profileImage, ...data });
       } catch (err) { console.error("Error fetching post:", err); setNotFound(true); }
       finally { setLoading(false); }
     })();
@@ -214,8 +223,12 @@ export default function PostPage() {
               {/* Post header */}
               <div className="flex items-center justify-between px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <button onClick={() => router.push(`/profile/${post.userId}`)} className="w-9 h-9 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white text-xs font-bold hover:opacity-90 transition">
-                    {(post.username || post.userEmail || "U")[0].toUpperCase()}
+                  <button onClick={() => router.push(`/profile/${post.userId}`)} className="w-9 h-9 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white text-xs font-bold hover:opacity-90 transition overflow-hidden relative shrink-0">
+                    {post.profileImage ? (
+                      <Image src={post.profileImage} alt={post.username || "User"} fill className="object-cover" unoptimized />
+                    ) : (
+                      (post.username || post.userEmail || "U")[0].toUpperCase()
+                    )}
                   </button>
                   <div className="flex items-center gap-2">
                     <button onClick={() => router.push(`/profile/${post.userId}`)} className="text-sm font-semibold text-[#1F2F46] hover:underline">

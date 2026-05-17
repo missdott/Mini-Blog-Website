@@ -23,10 +23,11 @@ export default function GalleryGrid({ posts }: { posts: Post[] }) {
   return (
     <>
       {withImages.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
           {withImages.map((post, index) => (
-            <motion.div key={post.id} className="relative aspect-square rounded-xl overflow-hidden cursor-pointer group bg-gray-100" whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }} onClick={() => setSelectedIndex(index)}>
-              <Image src={post.featuredImage} alt={post.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" />
+            <motion.div key={post.id} className="relative rounded-xl overflow-hidden cursor-pointer group" whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }} onClick={() => setSelectedIndex(index)}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={post.featuredImage} alt={post.title} className="w-full h-64 md:h-72 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105" loading="lazy" />
               <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
                 <p className="text-white text-sm font-semibold line-clamp-2 leading-tight">{post.title}</p>
                 <p className="text-white/70 text-xs mt-1">{post.createdAt?.toDate().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
@@ -51,7 +52,7 @@ export default function GalleryGrid({ posts }: { posts: Post[] }) {
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Text Posts</p>
           {textOnly.map((post) => (
             <div key={post.id} className="bg-white rounded-xl border border-gray-100 px-5 py-4 hover:shadow-md transition cursor-pointer">
-              <p className="font-semibold text-[#2F4B7C] text-sm">{post.title}</p>
+              <p className="font-semibold text-[#2F4B7C] text-sm">{post.title || "Untitled"}</p>
               <p className="text-xs text-gray-400 mt-1">{post.createdAt?.toDate().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
             </div>
           ))}

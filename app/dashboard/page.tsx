@@ -72,8 +72,8 @@ function Lightbox({ post, onClose }: { post: BlogPost; onClose: () => void }) {
         <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={onClose} />
         <motion.div className="relative z-10 flex w-full h-full max-w-7xl mx-auto" initial={{ scale: 0.97, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.97, opacity: 0 }} transition={{ duration: 0.22 }}>
           {/* Image — 70% */}
-          <div className="relative w-[70%] h-full flex items-center justify-center bg-black">
-            {image && <Image src={image} alt={post.title || "Post image"} fill className="object-contain" sizes="70vw" priority />}
+          <div className="relative w-[85%] h-full flex items-center justify-center bg-black">
+            {image && <Image src={image} alt={post.title || "Post image"} fill className="object-contain" sizes="85vw" priority />}
             {imgs.length > 1 && (
               <>
                 <button onClick={(e) => { e.stopPropagation(); setIdx((i) => (i - 1 + imgs.length) % imgs.length); }} className={`${navBtn} left-4`}>
@@ -91,9 +91,9 @@ function Lightbox({ post, onClose }: { post: BlogPost; onClose: () => void }) {
               </>
             )}
           </div>
-          {/* Sidebar — 30% */}
-          <div className="w-[30%] h-full bg-white flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          {/* Sidebar — 15% */}
+          <div className="w-[15%] h-full bg-white flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-3 border-b border-gray-100">
               <div className="flex items-center gap-2">
                 {post.profileImage ? (
                   <Image src={post.profileImage} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover" />
@@ -106,21 +106,21 @@ function Lightbox({ post, onClose }: { post: BlogPost; onClose: () => void }) {
                 <svg className="w-5 h-5" {...ip}><path {...sw2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
               <div>
-                {post.title && <h2 className="text-lg font-bold text-[#2F4B7C] leading-snug">{post.title}</h2>}
-                <p className="text-xs text-gray-400 mt-1">{post.createdAt?.toDate().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
+                {post.title && <h2 className="text-base font-bold text-[#2F4B7C] leading-snug">{post.title}</h2>}
+                <p className="text-[10px] text-gray-400 mt-1">{post.createdAt?.toDate().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
               </div>
-              {post.content && <p className="text-sm text-gray-700 line-clamp-3 leading-relaxed">{stripHtml(post.content).substring(0, 200)}{post.content.length > 200 ? "..." : ""}</p>}
+              {post.content && <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">{stripHtml(post.content).substring(0, 200)}{post.content.length > 200 ? "..." : ""}</p>}
               {post.tags && post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {post.tags.map((tag, i) => <span key={i} className="text-xs text-[#6FA8DC] font-medium">#{tag}</span>)}
                 </div>
               )}
             </div>
-            <div className="border-t border-gray-100 px-5 py-4 space-y-3">
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <span className="flex items-center gap-1.5">
+            <div className="border-t border-gray-100 px-3 py-3 space-y-3">
+              <div className="flex items-center gap-3 text-sm text-gray-500">
+                <span className="flex items-center gap-1">
                   <svg className="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" /></svg>
                   {post.likes?.length ?? 0} likes
                 </span>
@@ -140,14 +140,15 @@ function Lightbox({ post, onClose }: { post: BlogPost; onClose: () => void }) {
 
 // ─── CardCarousel ─────────────────────────────────────────────────────────────
 
-function CardCarousel({ images, title }: { images: string[]; title?: string }) {
+function CardCarousel({ images, title, priority = false }: { images: string[]; title?: string; priority?: boolean }) {
   const [cur, setCur] = useState(0);
   if (!images.length) return null;
   const prev = (e: React.MouseEvent) => { e.stopPropagation(); setCur((c) => (c - 1 + images.length) % images.length); };
   const next = (e: React.MouseEvent) => { e.stopPropagation(); setCur((c) => (c + 1) % images.length); };
   return (
-    <div className="relative w-full h-64 group">
-      <Image src={images[cur]} alt={`${title || "Post"} ${cur + 1}`} fill className="object-cover transition-opacity duration-300" unoptimized loading="eager" />
+    <div className="relative w-full h-64 md:h-72 rounded-xl overflow-hidden group bg-black">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={images[cur]} alt={`${title || "Post"} ${cur + 1}`} className="w-full h-64 md:h-72 object-cover rounded-xl transition-opacity duration-300" loading={priority ? "eager" : "lazy"} />
       {images.length > 1 && (
         <>
           <button onClick={prev} type="button" className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
@@ -169,23 +170,23 @@ function CardCarousel({ images, title }: { images: string[]; title?: string }) {
 // ─── GalleryGrid ──────────────────────────────────────────────────────────────
 
 function GalleryGrid({ posts, onOpenLightbox }: { posts: BlogPost[]; onOpenLightbox: (post: BlogPost) => void }) {
-  const withImgs = posts.filter((p) => p.featuredImage || p.galleryImages?.length);
-  const textOnly = posts.filter((p) => !p.featuredImage && !p.galleryImages?.length);
-
-  if (!withImgs.length && !textOnly.length) return (
-    <div className="bg-white rounded-xl shadow-md p-8 text-center border border-gray-100">
+  if (!posts.length) return (
+    <div className="py-12 text-center">
       <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" {...ip}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
       <p className="text-gray-500 text-lg font-medium">No posts yet. Why not write your first story?</p>
     </div>
   );
 
   return (
-    <div>
-      {withImgs.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {withImgs.map((post) => (
-            <motion.div key={post.id} className="relative aspect-square rounded-xl overflow-hidden cursor-pointer group bg-gray-100" whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }} onClick={() => onOpenLightbox(post)}>
-              <Image src={post.featuredImage || post.galleryImages?.[0] || ""} alt={post.title || "Post"} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" unoptimized />
+    <div className="columns-1 sm:columns-2 md:columns-3 gap-6 w-full">
+      {posts.map((post, index) => {
+        const image = post.featuredImage || post.galleryImages?.[0] || "";
+
+        if (image) {
+          return (
+            <motion.div key={post.id} className="relative rounded-xl overflow-hidden cursor-pointer group mb-6 break-inside-avoid" whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }} onClick={() => onOpenLightbox(post)}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={image} alt={post.title || "Post"} className="w-full min-h-52 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105" loading={index < 4 ? "eager" : "lazy"} />
               <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
                 {post.title && <p className="text-white text-sm font-semibold line-clamp-2 leading-tight">{post.title}</p>}
                 <p className="text-white/70 text-xs mt-1">{post.createdAt?.toDate().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
@@ -207,30 +208,135 @@ function GalleryGrid({ posts, onOpenLightbox }: { posts: BlogPost[]; onOpenLight
                 </div>
               )}
             </motion.div>
-          ))}
-        </div>
-      )}
-      {textOnly.length > 0 && (
-        <div className="mt-6 space-y-3">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Text Posts</p>
-          {textOnly.map((post) => (
-            <Link key={post.id} href={`/post/${post.id}`}>
-              <div className="bg-white rounded-xl border border-gray-100 px-5 py-4 hover:shadow-md transition cursor-pointer">
-                <div className="flex items-center gap-3 mb-2">
-                  {post.profileImage ? (
-                    <Image src={post.profileImage} alt="" width={24} height={24} className="w-6 h-6 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-[#6FA8DC] flex items-center justify-center text-white text-xs font-bold">{getInitial(post)}</div>
-                  )}
-                  <span className="text-sm font-semibold text-[#2F4B7C]">{getDisplayName(post)}</span>
-                  <span className="text-xs text-gray-400">• {post.createdAt?.toDate().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
-                </div>
-                <p className="font-semibold text-[#2F4B7C] text-sm">{post.title || "Untitled"}</p>
+          );
+        }
+
+        return (
+          <div key={post.id} onClick={() => onOpenLightbox(post)} className="mb-6 break-inside-avoid bg-white rounded-xl px-4 py-3 shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer relative group">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-6 h-6 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white font-bold text-[10px] shrink-0 overflow-hidden relative">
+                {post.profileImage ? <Image src={post.profileImage} alt="" fill className="object-cover" unoptimized /> : getInitial(post)}
               </div>
-            </Link>
-          ))}
-        </div>
-      )}
+              <span className="text-xs font-medium text-gray-700">{getDisplayName(post)}</span>
+              <span className="text-xs text-gray-400">• {formatDate(post.createdAt)}</span>
+            </div>
+            <p className="font-semibold text-[#2F4B7C] text-sm mb-1">{post.title || "Untitled"}</p>
+            <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+              <span className="flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>{post.likes?.length || 0}</span>
+              <span className="flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>{post.comments || 0}</span>
+            </div>
+            {(post.isDraft || post.isPrivate) && (
+              <div className="absolute top-2 right-2 flex gap-1">
+                {post.isDraft && <span className="bg-yellow-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">Draft</span>}
+                {post.isPrivate && <span className="bg-gray-700 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">Private</span>}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── PostFeed ─────────────────────────────────────────────────────────────────
+
+function PostFeed({ posts, user, bookmarkedIds, onLike, onBookmark, onOpenLightbox, onEdit, onDelete }: {
+  posts: BlogPost[]; user: any; bookmarkedIds: Set<string>;
+  onLike: (postId: string) => void;
+  onBookmark: (e: React.MouseEvent, postId: string) => void;
+  onOpenLightbox: (post: BlogPost) => void;
+  onEdit: (post: BlogPost) => void;
+  onDelete: (postId: string) => void;
+}) {
+  const router = useRouter();
+  const [showMenuId, setShowMenuId] = useState<string | null>(null);
+
+  if (!posts.length) return (
+    <div className="py-12 text-center">
+      <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" {...ip}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+      <p className="text-gray-500 font-medium text-lg">No posts yet. Why not write your first story?</p>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      {posts.map((post) => {
+        const images = getPostImages(post);
+        const isLiked = post.likes?.includes(user?.uid ?? "") ?? false;
+        const isBookmarked = bookmarkedIds.has(post.id);
+        const strippedContent = stripHtml(post.content || "");
+
+        return (
+          <div key={post.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/post/${post.id}`)}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 relative bg-[#2F4B7C] flex items-center justify-center text-white font-bold">
+                  {post.profileImage ? <Image src={post.profileImage} alt="" fill className="object-cover" unoptimized /> : getInitial(post)}
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-[#1F2F46] leading-none">{getDisplayName(post)}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">• {formatDate(post.createdAt)}</p>
+                </div>
+              </div>
+              <div className="relative" onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => setShowMenuId(showMenuId === post.id ? null : post.id)} className="p-1.5 hover:bg-gray-100 rounded-full transition">
+                  <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>
+                </button>
+                {showMenuId === post.id && (
+                  <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-100 z-20 py-1">
+                    <button onClick={(e) => { e.stopPropagation(); onEdit(post); setShowMenuId(null); }} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Edit
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); onDelete(post.id); setShowMenuId(null); }} className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg> Delete
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Images */}
+            {images.length > 0 && (
+              <div onClick={(e) => { e.stopPropagation(); onOpenLightbox(post); }}>
+                <CardCarousel images={images} title={post.title} />
+              </div>
+            )}
+
+            {/* Body */}
+            <div className="px-4 py-3">
+              {post.title && <h2 className="font-bold text-[#1F2F46] text-base mb-1">{post.title}</h2>}
+              {strippedContent && <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">{strippedContent.substring(0, 200)}{strippedContent.length > 200 ? "..." : ""}</p>}
+              {(post.tags?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {post.tags!.map((tag, i) => <span key={i} className="text-xs text-[#6FA8DC] font-medium">#{tag}</span>)}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-4 py-2.5 border-t border-gray-100 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center gap-4">
+                <button onClick={(e) => { e.stopPropagation(); onLike(post.id); }} className={`flex items-center gap-1.5 text-sm transition ${isLiked ? "text-red-500" : "text-gray-500 hover:text-red-500"}`}>
+                  <svg className="w-5 h-5" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24"><path {...sw2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                  <span className="text-xs">{post.likes?.length || 0}</span>
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); router.push(`/post/${post.id}#comments`); }} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#6FA8DC] transition">
+                  <svg className="w-5 h-5" {...ip}><path {...sw2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                  <span className="text-xs">{post.comments || 0}</span>
+                </button>
+                <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-green-600 transition">
+                  <svg className="w-5 h-5" {...ip}><path {...sw2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                  <span className="text-xs">Share</span>
+                </button>
+              </div>
+              <button onClick={(e) => onBookmark(e, post.id)} className={`transition ${isBookmarked ? "text-[#F4A261]" : "text-gray-400 hover:text-[#F4A261]"}`}>
+                <svg className="w-5 h-5" fill={isBookmarked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24"><path {...sw2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -255,8 +361,8 @@ export default function DashboardPage() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "gallery">("list");
   const [lightboxPost, setLightboxPost] = useState<BlogPost | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [modalState, setModalState] = useState({
     isOpen: false, type: "alert" as "alert" | "confirm",
     title: "", message: "", onConfirm: undefined as (() => void) | undefined,
@@ -476,9 +582,9 @@ export default function DashboardPage() {
           {coverImage
             ? <Image src={coverImage} alt="Cover" fill className="object-cover" unoptimized priority />
             : <div className="absolute inset-0 bg-linear-to-br from-[#2F4B7C] via-[#5A90C4] to-[#6FA8DC]">
-                <div className="absolute -top-8 -right-8 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
-                <div className="absolute -bottom-12 -left-8 w-80 h-80 bg-[#F4A261]/20 rounded-full blur-3xl" />
-              </div>
+              <div className="absolute -top-8 -right-8 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
+              <div className="absolute -bottom-12 -left-8 w-80 h-80 bg-[#F4A261]/20 rounded-full blur-3xl" />
+            </div>
           }
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center">
             <button
@@ -487,7 +593,7 @@ export default function DashboardPage() {
               className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 bg-black/60 hover:bg-black/80 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm"
             >
               {coverUploading
-                ? <><svg className="animate-spin w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Uploading...</>
+                ? <><svg className="animate-spin w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Uploading...</>
                 : <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>Edit cover photo</>
               }
             </button>
@@ -501,7 +607,7 @@ export default function DashboardPage() {
             <div className="relative shrink-0 z-10">
               <div className="w-28 h-28 md:w-32 md:h-32 rounded-full ring-4 ring-white bg-white shadow-xl overflow-hidden relative">
                 {profileImage
-                  ? <Image src={profileImage} alt="" fill className="object-cover" unoptimized onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  ? <Image src={profileImage} alt="" fill className="object-cover" unoptimized priority onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                   : null}
                 {!profileImage && (
                   <div className="w-full h-full bg-[#2F4B7C] flex items-center justify-center">
@@ -540,114 +646,25 @@ export default function DashboardPage() {
       </div>
 
       {/* Feed */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className={`mx-auto px-4 sm:px-6 lg:px-8 py-8 ${viewMode === "list" ? "max-w-3xl xl:max-w-4xl" : "max-w-7xl"}`}>
         <div className="flex items-center justify-between mb-6">
           <Link href="/editor" className="inline-flex items-center gap-2 text-base font-bold bg-[#5A90C4] text-white px-8 py-3 rounded-full shadow-lg hover:bg-[#4A7FAA] hover:scale-105 transition-all duration-200 active:scale-95">
             <span className="text-xl leading-none">+</span> Create New Post
           </Link>
-          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
-            {(["list", "gallery"] as const).map((mode) => (
-              <button key={mode} onClick={() => setViewMode(mode)} title={`${mode} view`} className={`p-2 rounded-lg transition-all ${viewMode === mode ? "bg-[#6FA8DC] text-white shadow-sm" : "text-gray-400 hover:text-[#2F4B7C]"}`}>
-                {mode === "list"
-                  ? <svg className="w-5 h-5" {...ip}><path {...sw2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-                  : <svg className="w-5 h-5" {...ip}><path {...sw2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                }
-              </button>
-            ))}
+          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
+            <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-md transition ${viewMode === "list" ? "bg-[#2F4B7C] text-white" : "text-gray-400 hover:text-gray-600"}`} title="List view">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z" /></svg>
+            </button>
+            <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-md transition ${viewMode === "grid" ? "bg-[#2F4B7C] text-white" : "text-gray-400 hover:text-gray-600"}`} title="Grid view">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10-10h8v8h-8V3zm0 10h8v8h-8v-8z" /></svg>
+            </button>
           </div>
         </div>
 
-        {viewMode === "gallery" && <GalleryGrid posts={filteredPosts} onOpenLightbox={(post) => setLightboxPost(post)} />}
-
-        {viewMode === "list" && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            {filteredPosts.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-md p-8 text-center border border-gray-100">
-                <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" {...ip}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6" /></svg>
-                <p className="text-gray-500 text-lg font-medium">{searchQuery ? "No posts match your search." : "No posts yet. Why not write your first story?"}</p>
-              </div>
-            ) : filteredPosts.map((post) => (
-              <article key={post.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-visible relative">
-                {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <button onClick={() => router.push(`/profile/${post.userId}`)} className="w-9 h-9 rounded-full overflow-hidden hover:opacity-90 transition">
-                      {post.profileImage ? (
-                        <Image src={post.profileImage} alt="" width={36} height={36} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-[#2F4B7C] flex items-center justify-center text-white text-xs font-bold">{getInitial(post)}</div>
-                      )}
-                    </button>
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => router.push(`/profile/${post.userId}`)} className="text-sm font-semibold text-[#1F2F46] hover:underline">{getDisplayName(post)}</button>
-                      <svg className="w-3 h-3 text-[#2F4B7C]" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-xs text-gray-500">• {formatDate(post.createdAt)}</span>
-                    </div>
-                  </div>
-                  <div className="relative" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={(e) => { e.stopPropagation(); setShowPostMenu(showPostMenu === post.id ? null : post.id); }} className="p-1 hover:bg-[#F6F3EC] rounded-full">
-                      <svg className="w-5 h-5 text-[#2F4B7C]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>
-                    </button>
-                    {showPostMenu === post.id && (
-                      <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-2xl shadow-xl py-2 z-50 border border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200" onClick={(e) => e.stopPropagation()}>
-                        <button onClick={() => { setShowPostMenu(null); handleEditPost(post); }} className="flex items-center gap-3 w-full px-5 py-3 text-sm font-bold text-[#2F4B7C] hover:bg-[#F6F3EC] transition-colors text-left">
-                          <svg className="w-4 h-4" {...ip}><path {...sw2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                          Edit
-                        </button>
-                        <button onClick={() => handleDeleteClick(post.id)} className="flex items-center gap-3 w-full px-5 py-3 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors text-left">
-                          <svg className="w-4 h-4" {...ip}><path {...sw2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {(post.featuredImage || (post.galleryImages?.length ?? 0) > 0) && <CardCarousel images={getPostImages(post)} title={post.title} />}
-
-                {/* Content */}
-                <div className="px-4 py-3">
-                  {post.title && <p className="font-semibold text-[#1F2F46] mb-1">{post.title}</p>}
-                  {(() => { const text = stripHtml(post.content); return text && <p className="text-gray-800 text-sm leading-relaxed line-clamp-3">{text.substring(0, 200)}{text.length > 200 ? "..." : ""}</p>; })()}
-                  {post.tags && post.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {post.tags.map((tag, i) => <span key={i} className="text-xs text-[#6FA8DC] hover:underline cursor-pointer font-medium">#{tag}</span>)}
-                    </div>
-                  )}
-                  {post.categories && post.categories.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {post.categories.map((cat, i) => <span key={i} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{cat}</span>)}
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer */}
-                <div className="px-4 py-2 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <button onClick={() => handleLike(post.id)} className={`flex items-center gap-1.5 transition ${post.likes?.includes(user.uid) ? "text-red-600" : "text-gray-700 hover:text-red-600"}`}>
-                      <svg className="w-6 h-6" fill={post.likes?.includes(user.uid) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24"><path {...sw2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                      <span className="text-xs">{post.likes?.length || 0}</span>
-                    </button>
-                    <button onClick={() => router.push(`/post/${post.id}#comments`)} className="flex items-center gap-1.5 text-gray-700 hover:text-[#6FA8DC] transition">
-                      <svg className="w-6 h-6" {...ip}><path {...sw2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                      <span className="text-xs">{post.comments || 0}</span>
-                    </button>
-                    <button className="flex items-center gap-1.5 text-gray-700 hover:text-green-600 transition">
-                      <svg className="w-6 h-6" {...ip}><path {...sw2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-                      <span className="text-xs">Shares</span>
-                    </button>
-                  </div>
-                  <button onClick={(e) => handleBookmark(e, post.id)} title={bookmarkedIds.has(post.id) ? "Remove bookmark" : "Save post"} className="transition" style={{ color: bookmarkedIds.has(post.id) ? "#F4A261" : "#9ca3af" }}>
-                    <svg className="w-6 h-6" fill={bookmarkedIds.has(post.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24"><path {...sw2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+        {viewMode === "list"
+          ? <PostFeed posts={filteredPosts} user={user} bookmarkedIds={bookmarkedIds} onLike={handleLike} onBookmark={handleBookmark} onOpenLightbox={(post) => setLightboxPost(post)} onEdit={handleEditPost} onDelete={handleDeleteClick} />
+          : <GalleryGrid posts={filteredPosts} onOpenLightbox={(post) => setLightboxPost(post)} />
+        }
       </div>
 
       <Modal

@@ -66,7 +66,7 @@ export default function Lightbox({ post, onClose, onPrev, onNext, totalCount, cu
 
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
               <div>
-                <h2 className="text-lg font-bold text-[#2F4B7C] leading-snug">{post.title}</h2>
+                {post.title && <h2 className="text-lg font-bold text-[#2F4B7C] leading-snug">{post.title}</h2>}
                 <p className="text-xs text-gray-400 mt-1">{post.createdAt?.toDate().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
               </div>
               {post.content && <div className="prose prose-sm max-w-none text-gray-700" dangerouslySetInnerHTML={{ __html: post.content }} />}
