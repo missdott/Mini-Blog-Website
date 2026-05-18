@@ -240,10 +240,11 @@ function GalleryGrid({ posts, onOpenLightbox }: { posts: BlogPost[]; onOpenLight
 
 // ─── PostFeed ─────────────────────────────────────────────────────────────────
 
-function PostFeed({ posts, user, bookmarkedIds, onLike, onBookmark, onOpenLightbox, onEdit, onDelete }: {
+function PostFeed({ posts, user, bookmarkedIds, onLike, onBookmark, onShare, onOpenLightbox, onEdit, onDelete }: {
   posts: BlogPost[]; user: any; bookmarkedIds: Set<string>;
   onLike: (postId: string) => void;
   onBookmark: (e: React.MouseEvent, postId: string) => void;
+  onShare: (e: React.MouseEvent, post: BlogPost) => void;
   onOpenLightbox: (post: BlogPost) => void;
   onEdit: (post: BlogPost) => void;
   onDelete: (postId: string) => void;
@@ -280,15 +281,15 @@ function PostFeed({ posts, user, bookmarkedIds, onLike, onBookmark, onOpenLightb
                 </div>
               </div>
               <div className="relative" onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => setShowMenuId(showMenuId === post.id ? null : post.id)} className="p-1.5 hover:bg-gray-100 rounded-full transition">
-                  <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>
+                <button onClick={() => setShowMenuId(showMenuId === post.id ? null : post.id)} className="p-1.5 hover:bg-[#F6F3EC] rounded-full transition-colors group">
+                  <svg className="w-4 h-4 text-[#2F4B7C] group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>
                 </button>
                 {showMenuId === post.id && (
-                  <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-100 z-20 py-1">
-                    <button onClick={(e) => { e.stopPropagation(); onEdit(post); setShowMenuId(null); }} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 z-20 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <button onClick={(e) => { e.stopPropagation(); onEdit(post); setShowMenuId(null); }} className="w-full text-left px-4 py-2.5 text-sm font-bold text-[#2F4B7C] hover:bg-[#F6F3EC] transition-colors flex items-center gap-2">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Edit
                     </button>
-                    <button onClick={(e) => { e.stopPropagation(); onDelete(post.id); setShowMenuId(null); }} className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                    <button onClick={(e) => { e.stopPropagation(); onDelete(post.id); setShowMenuId(null); }} className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg> Delete
                     </button>
                   </div>
@@ -325,7 +326,7 @@ function PostFeed({ posts, user, bookmarkedIds, onLike, onBookmark, onOpenLightb
                   <svg className="w-5 h-5" {...ip}><path {...sw2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                   <span className="text-xs">{post.comments || 0}</span>
                 </button>
-                <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-green-600 transition">
+                <button onClick={(e) => { e.stopPropagation(); onShare(e, post); }} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-green-600 transition">
                   <svg className="w-5 h-5" {...ip}><path {...sw2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
                   <span className="text-xs">Share</span>
                 </button>
@@ -437,6 +438,23 @@ export default function DashboardPage() {
     setToast(msg);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleShare = async (e: React.MouseEvent, post: BlogPost) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/post/${post.id}`;
+    const shareData = { title: post.title || "Check out this post", text: post.title || "Shared from NOOK", url };
+    try {
+      if (navigator.share && navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(url);
+        showToast("Link copied to clipboard!");
+      }
+    } catch {
+      await navigator.clipboard.writeText(url);
+      showToast("Link copied to clipboard!");
+    }
   };
 
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -662,7 +680,7 @@ export default function DashboardPage() {
         </div>
 
         {viewMode === "list"
-          ? <PostFeed posts={filteredPosts} user={user} bookmarkedIds={bookmarkedIds} onLike={handleLike} onBookmark={handleBookmark} onOpenLightbox={(post) => setLightboxPost(post)} onEdit={handleEditPost} onDelete={handleDeleteClick} />
+          ? <PostFeed posts={filteredPosts} user={user} bookmarkedIds={bookmarkedIds} onLike={handleLike} onBookmark={handleBookmark} onShare={handleShare} onOpenLightbox={(post) => setLightboxPost(post)} onEdit={handleEditPost} onDelete={handleDeleteClick} />
           : <GalleryGrid posts={filteredPosts} onOpenLightbox={(post) => setLightboxPost(post)} />
         }
       </div>
