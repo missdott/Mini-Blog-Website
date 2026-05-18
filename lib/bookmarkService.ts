@@ -61,5 +61,18 @@ export async function getBookmarkedPosts(userId: string): Promise<BookmarkedPost
     snap.docs.map((d): BookmarkedPost => ({ id: d.id, ...d.data() }))
   );
 
-  return posts.sort((a, b) => ids.indexOf(b.id) - ids.indexOf(a.id));
+  // Fetch profileImage for each post's author
+  const uniqueUserIds = [...new Set(posts.map((p) => p.userId as string).filter(Boolean))];
+  const userSnaps = await Promise.all(uniqueUserIds.map((uid) => getDoc(doc(db, "users", uid))));
+  const profileImages: Record<string, string> = {};
+  userSnaps.forEach((snap) => {
+    if (snap.exists()) profileImages[snap.id] = snap.data()?.profileImage ?? "";
+  });
+
+  const postsWithImages = posts.map((p) => ({
+    ...p,
+    profileImage: profileImages[p.userId as string] ?? "",
+  }));
+
+  return postsWithImages.sort((a, b) => ids.indexOf(b.id) - ids.indexOf(a.id));
 }

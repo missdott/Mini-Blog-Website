@@ -13,7 +13,7 @@ interface Post {
   id: string; title?: string; content: string; username: string;
   userEmail: string; userId: string; createdAt: { toDate: () => Date };
   likes?: string[]; comments?: number; tags?: string[];
-  categories?: string[]; featuredImage?: string;
+  categories?: string[]; featuredImage?: string; profileImage?: string;
   isPrivate: boolean; isDraft: boolean;
 }
 
@@ -23,6 +23,18 @@ const sw2 = { strokeLinecap: "round" as const, strokeLinejoin: "round" as const,
 const formatDate = (createdAt: Post["createdAt"]) => {
   try { return createdAt?.toDate().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
   catch { return ""; }
+};
+
+const timeAgo = (createdAt: Post["createdAt"]) => {
+  try {
+    const date = createdAt?.toDate();
+    if (!date) return "";
+    const s = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (s < 60) return "just now";
+    if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+    if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+    return `${Math.floor(s / 86400)}d ago`;
+  } catch { return ""; }
 };
 
 const navLink = "text-[#2F4B7C] hover:text-[#6FA8DC] font-bold transition-colors uppercase tracking-widest text-[11px]";
@@ -165,47 +177,75 @@ export default function BookmarksPage() {
             <Link href="/home" className="inline-block mt-6 px-6 py-2.5 bg-[#6FA8DC] text-white text-sm font-bold rounded-full hover:bg-[#5A90C4] transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer">Browse posts</Link>
           </div>
         ) : (
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <div key={post.id} onClick={() => router.push(`/post/${post.id}`)} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer hover:border-[#6FA8DC]/30">
-                <div className="flex items-center justify-between mb-3">
-                  <button onClick={(e) => { e.stopPropagation(); router.push(`/profile/${post.userId}`); }} className="flex items-center gap-2 hover:opacity-80 transition-all duration-200 ease-in-out hover:scale-105 cursor-pointer">
-                    <div className="w-8 h-8 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white text-xs font-bold">
-                      {(post.username?.[0] || post.userEmail?.[0] || "?").toUpperCase()}
+          <div className="flex flex-col gap-4">
+            {posts.map((post) => {
+              const strippedContent = post.content?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() || "";
+              return (
+                <div key={post.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/post/${post.id}`)}>
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <button onClick={(e) => { e.stopPropagation(); router.push(`/profile/${post.userId}`); }} className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#2F4B7C] flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden relative">
+                        {post.profileImage
+                          ? <Image src={post.profileImage} alt="" fill className="object-cover" unoptimized onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          : (post.username?.[0] || post.userEmail?.[0] || "?").toUpperCase()
+                        }
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-semibold text-[#1F2F46] leading-none">{post.username || post.userEmail?.split("@")[0]}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">• {timeAgo(post.createdAt)}</p>
+                      </div>
+                    </button>
+                    <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                      <button onClick={(e) => handleToggleBookmark(e, post.id)} className={`transition p-1.5 rounded-full hover:bg-[#F6F3EC] ${bookmarkedIds.has(post.id) ? "text-[#F4A261]" : "text-gray-400 hover:text-[#F4A261]"}`}>
+                        <svg className="w-5 h-5" fill={bookmarkedIds.has(post.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+                      </button>
                     </div>
-                    <div className="text-left">
-                      <p className="text-sm font-semibold text-gray-900">{post.username || post.userEmail}</p>
-                      <p className="text-xs text-gray-400">{formatDate(post.createdAt)}</p>
+                  </div>
+
+                  {/* Featured image */}
+                  {post.featuredImage && (
+                    <div className="relative w-full h-56">
+                      <Image src={post.featuredImage} alt={post.title || "Post image"} fill className="object-cover" unoptimized />
                     </div>
-                  </button>
-                  <button onClick={(e) => handleToggleBookmark(e, post.id)} title="Remove bookmark" className="p-2 rounded-lg hover:bg-gray-100 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 cursor-pointer">
-                    <svg className="w-5 h-5" fill={bookmarkedIds.has(post.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" style={{ color: bookmarkedIds.has(post.id) ? "#F4A261" : "#9ca3af" }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                    </svg>
-                  </button>
-                </div>
+                  )}
 
-                {post.featuredImage && (
-                  <div className="mb-3 rounded-xl overflow-hidden relative h-40">
-                    <Image src={post.featuredImage} alt={post.title || "Post image"} fill className="object-cover" unoptimized />
+                  {/* Body */}
+                  <div className="px-4 py-3">
+                    {post.title && <h3 className="font-bold text-[#1F2F46] text-base mb-1">{post.title}</h3>}
+                    {strippedContent && <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">{strippedContent.substring(0, 200)}{strippedContent.length > 200 ? "..." : ""}</p>}
+                    {(post.tags?.length ?? 0) > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {post.tags!.map((tag, i) => <span key={i} className="text-xs text-[#6FA8DC] font-medium">#{tag}</span>)}
+                      </div>
+                    )}
                   </div>
-                )}
 
-                {post.title && <h3 className="text-base font-bold text-gray-900 mb-1">{post.title}</h3>}
-                <p className="text-sm text-gray-600 leading-relaxed line-clamp-2" dangerouslySetInnerHTML={{ __html: post.content.replace(/<[^>]*>/g, "").substring(0, 150) + (post.content.length > 150 ? "..." : "") }} />
-
-                {post.tags && post.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {post.tags.map((tag, i) => <span key={i} className="text-xs text-[#6FA8DC] font-medium">#{tag}</span>)}
+                  {/* Footer */}
+                  <div className="px-4 py-2.5 border-t border-gray-100 flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
+                    <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                      <span className="text-xs">{post.likes?.length || 0}</span>
+                    </button>
+                    <button onClick={() => router.push(`/post/${post.id}#comments`)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#6FA8DC] transition">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                      <span className="text-xs">{post.comments || 0}</span>
+                    </button>
+                    <button onClick={async (e) => {
+                      e.stopPropagation();
+                      const url = `${window.location.origin}/post/${post.id}`;
+                      try {
+                        if (navigator.share) { await navigator.share({ title: post.title || "Check out this post", url }); }
+                        else { await navigator.clipboard.writeText(url); showToast("Link copied to clipboard!"); }
+                      } catch { await navigator.clipboard.writeText(url); showToast("Link copied to clipboard!"); }
+                    }} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-green-600 transition">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                      <span className="text-xs">Share</span>
+                    </button>
                   </div>
-                )}
-
-                <div className="flex items-center gap-4 mt-4 pt-3 border-t border-gray-100 text-xs text-gray-400">
-                  <span>❤️ {post.likes?.length || 0}</span>
-                  <span>💬 {post.comments || 0}</span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

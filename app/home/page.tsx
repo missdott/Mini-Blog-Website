@@ -266,21 +266,21 @@ function GalleryGrid({ posts, user, onOpenLightbox }: {
   );
 }
 
-function PostFeed({ posts, user, bookmarkedIds, followedUsers, onLike, onBookmark, onFollow, onOpenLightbox }: {
+function PostFeed({ posts, user, bookmarkedIds, followedUsers, onLike, onBookmark, onFollow, onShare, onOpenLightbox }: {
   posts: Post[]; user: FirebaseUser | null; bookmarkedIds: Set<string>;
   followedUsers: Set<string>;
   onLike: (e: React.MouseEvent, postId: string, likes: string[]) => void;
   onBookmark: (e: React.MouseEvent, postId: string) => void;
   onFollow: (e: React.MouseEvent, targetId: string) => void;
+  onShare: (e: React.MouseEvent, post: Post) => void;
   onOpenLightbox: (post: Post) => void;
 }) {
   const router = useRouter();
   const [showPostMenu, setShowPostMenu] = useState<string | null>(null);
 
-  if (!posts.length) return (
-    <div className="py-12 text-center">
-      <p className="text-gray-500 font-medium">No posts yet. Be the first to write!</p>
-    </div>
+  if (!posts.length) return (<div className="py-12 text-center">
+    <p className="text-gray-500 font-medium">No posts yet. Be the first to write!</p>
+  </div>
   );
 
   return (
@@ -304,14 +304,16 @@ function PostFeed({ posts, user, bookmarkedIds, followedUsers, onLike, onBookmar
                 </div>
               </button>
               <div className="relative" onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => setShowPostMenu(showPostMenu === post.id ? null : post.id)} className="p-1.5 hover:bg-gray-100 rounded-full transition">
-                  <MoreIcon className="w-4 h-4 text-gray-400" />
+                <button onClick={() => setShowPostMenu(showPostMenu === post.id ? null : post.id)} className="p-1.5 hover:bg-[#F6F3EC] rounded-full transition-colors group">
+                  <MoreIcon className="w-4 h-4 text-[#2F4B7C] group-hover:scale-110 transition-transform" />
                 </button>
                 {showPostMenu === post.id && (
-                  <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-100 z-20 py-1">
-                    <button onClick={() => { router.push(`/post/${post.id}`); setShowPostMenu(null); }} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">View post</button>
+                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 z-20 py-2 animate-in fade-in slide-in-from-top-2 duration-200" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => { router.push(`/post/${post.id}`); setShowPostMenu(null); }} className="w-full text-left px-4 py-2.5 text-sm font-bold text-[#2F4B7C] hover:bg-[#F6F3EC] transition-colors">
+                      View post
+                    </button>
                     {!isOwn && (
-                      <button onClick={(e) => { onFollow(e, post.userId); setShowPostMenu(null); }} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                      <button onClick={(e) => { onFollow(e, post.userId); setShowPostMenu(null); }} className="w-full text-left px-4 py-2.5 text-sm font-bold text-[#2F4B7C] hover:bg-[#F6F3EC] transition-colors">
                         {followedUsers.has(post.userId) ? "Unfollow" : "Follow"} {getDisplayName(post)}
                       </button>
                     )}
@@ -349,7 +351,7 @@ function PostFeed({ posts, user, bookmarkedIds, followedUsers, onLike, onBookmar
                   <CommentIcon className="w-5 h-5" />
                   <span className="text-xs">{post.comments || 0}</span>
                 </button>
-                <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-green-600 transition">
+                <button onClick={(e) => onShare(e, post)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-green-600 transition">
                   <ShareIcon className="w-5 h-5" />
                   <span className="text-xs">Share</span>
                 </button>
@@ -549,6 +551,23 @@ export default function HomePage() {
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
+  const handleShare = async (e: React.MouseEvent, post: Post) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/post/${post.id}`;
+    const shareData = { title: post.title || "Check out this post", text: post.title || "Shared from NOOK", url };
+    try {
+      if (navigator.share && navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(url);
+        showToast("Link copied to clipboard!");
+      }
+    } catch {
+      await navigator.clipboard.writeText(url);
+      showToast("Link copied to clipboard!");
+    }
+  };
+
   const handleBookmark = async (e: React.MouseEvent, postId: string) => {
     e.stopPropagation();
     if (!user?.uid) return;
@@ -660,7 +679,7 @@ export default function HomePage() {
               </div>
             </div>
             {viewMode === "list"
-              ? <PostFeed posts={filteredPosts} user={user} bookmarkedIds={bookmarkedIds} followedUsers={followedUsers} onLike={handleLike} onBookmark={handleBookmark} onFollow={handleFollow} onOpenLightbox={handleOpenLightbox} />
+              ? <PostFeed posts={filteredPosts} user={user} bookmarkedIds={bookmarkedIds} followedUsers={followedUsers} onLike={handleLike} onBookmark={handleBookmark} onFollow={handleFollow} onShare={handleShare} onOpenLightbox={handleOpenLightbox} />
               : <GalleryGrid posts={filteredPosts} user={user} onOpenLightbox={handleOpenLightbox} />
             }
           </div>

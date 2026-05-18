@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useAuth } from "@/lib/AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { toggleBookmark, getBookmarkedIds } from "@/lib/bookmarkService";
 import { CommentsController } from "@/components/Comments";
 
 // ─── Types & Helpers ──────────────────────────────────────────────────────────
@@ -84,6 +85,7 @@ export default function PostPage() {
   const [notFound, setNotFound] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showMenu, setShowMenu] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // ── Effects ──
@@ -104,8 +106,14 @@ export default function PostPage() {
             profileImage = userSnap.data().profileImage || "";
           }
         } catch { /* skip silently */ }
-        
+
         setPost({ id: snap.id, profileImage, ...data });
+
+        // Check if user has bookmarked this post
+        if (user?.uid) {
+          const ids = await getBookmarkedIds(user.uid);
+          setIsBookmarked(ids.includes(snap.id));
+        }
       } catch (err) { console.error("Error fetching post:", err); setNotFound(true); }
       finally { setLoading(false); }
     })();
@@ -142,6 +150,13 @@ export default function PostPage() {
 
   const handleLogout = async () => { try { await signOut(); router.push("/"); } catch (e) { console.error("Logout error:", e); } };
   const handleSearchNavigate = () => { if (searchQuery.trim()) router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`); };
+  const handleBookmark = async () => {
+    if (!user || !post) return;
+    try {
+      await toggleBookmark(user.uid, post.id);
+      setIsBookmarked(!isBookmarked);
+    } catch (err) { console.error("Error updating bookmark:", err); }
+  };
 
   // ── Early returns ──
 
@@ -282,8 +297,8 @@ export default function PostPage() {
                     <span className="text-xs">Shares</span>
                   </button>
                 </div>
-                <button className="text-gray-700 hover:text-[#F4A261] transition">
-                  <svg className="w-6 h-6" {...ip}><path {...sw2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+                <button onClick={handleBookmark} className={`transition ${isBookmarked ? "text-[#F4A261]" : "text-gray-700 hover:text-[#F4A261]"}`}>
+                  <svg className="w-6 h-6" fill={isBookmarked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24"><path {...sw2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
                 </button>
               </div>
             </div>
